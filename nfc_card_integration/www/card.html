@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -124,6 +124,17 @@
       padding-right: 0.1em;
       font-weight: 600;
     }
+    .ltr-rtl-field {
+      display: block;
+      width: 100%;
+      direction: ltr;
+      text-align: left;
+      unicode-bidi: embed;
+    }
+    html[dir="rtl"] .ltr-rtl-field {
+      direction: rtl;
+      text-align: right;
+    }
     .info-row .copy-btn {
       background: none; border: none; color: #7ec7ff; cursor: pointer; 
       font-size: 1.1em; padding: 0 0.2em;
@@ -236,60 +247,6 @@
       color: #e74c3c;
       font-size: 1.02em; margin-top: 0.6em; font-weight: 700;
     }
-    .qr-section {
-      margin-top: 1.7em;
-      margin-bottom: 0.9em;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.65em;
-      width: 100%;
-    }
-    .qr-wrapper {
-      width: 100%;
-      max-width: 200px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-    #qr-code-canvas {
-      background: #fff;
-      border-radius: 16px;
-      padding: 6%;
-      width: 100%;
-      height: auto;
-      aspect-ratio: 1/1;
-      max-width: 180px;
-      min-width: 80px;
-      min-height: 80px;
-      margin: 0 auto;
-      display: block;
-      box-sizing: border-box;
-      transition: transform 0.24s cubic-bezier(.60,.6,.36,1.34);
-      cursor: pointer;
-      animation: qrPopIn 1s cubic-bezier(.39,.46,.38,.97);
-    }
-    @keyframes qrPopIn {
-      0% { opacity:0; transform: scale(0.5);}
-      100% { opacity:1; transform: scale(1);}
-    }
-    #qr-code-canvas:hover {
-      transform: scale(1.07) rotate(-2deg);
-    }
-    @media (max-width: 540px) {
-      .qr-wrapper {
-        max-width: 84vw;
-        padding: 0;
-      }
-      #qr-code-canvas {
-        max-width: 100vw;
-        min-width: 56px;
-        min-height: 56px;
-        padding: 5%;
-      }
-    }
     .toast {
       position: fixed; left: 50%; bottom: 2.2em;
       background: #23272f; color: #fafcff;
@@ -330,8 +287,11 @@
     }
   </style>
   <script>
+    // RTL support: Set dir and translations if lang is Arabic
     document.addEventListener("DOMContentLoaded", function() {
       var lang = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
+      // Uncomment for debugging:
+      // alert("Detected language: " + lang);
       if (lang.startsWith('ar')) {
         document.documentElement.setAttribute('dir', 'rtl');
         document.documentElement.setAttribute('lang', 'ar');
@@ -340,6 +300,7 @@
             if (el.textContent.includes("Save to Phone") && el.querySelector("span")) el.querySelector("span").textContent = "حفظ في الهاتف";
             if (el.textContent.includes("Share My Contact") && el.querySelector("span")) el.querySelector("span").textContent = "مشاركة بياناتي";
             if (el.textContent.includes("Send My Details")) el.textContent = "إرسال بياناتي";
+            if (el.textContent.includes("Download Barcode") && el.querySelector("span")) el.querySelector("span").textContent = "تحميل الباركود";
           }
           if(el.tagName === "LABEL") {
             if(el.textContent.includes("Your Name")) el.textContent = "اسمك*";
@@ -348,6 +309,9 @@
             if(el.textContent.includes("Company")) el.textContent = "الشركة";
           }
         });
+      } else {
+        document.documentElement.setAttribute('dir', 'ltr');
+        document.documentElement.setAttribute('lang', 'en');
       }
     });
   </script>
@@ -362,13 +326,13 @@
     <div class="not-found-desc" style="color:#888;font-size:1.13em;margin-bottom:0.7em;">The card you are looking for does not exist.</div>
   </div>
 {% else %}
-  {% set display_name = (card.name_on_card or card.card_id) ~ (card.company and ' - ' ~ card.company or '') %}
-  <div class="card-container" aria-label="Business Card for {{ display_name }}">
+  {% set contact_full_name = (card.name_on_card or card.card_id) ~ (card.company and ' - ' ~ card.company or '') %}
+  <div class="card-container" aria-label="Business Card for {{ card.name_on_card or card.card_id }}">
     <div class="avatar-wrapper">
       {% if card.image %}
-        <img src="{{ card.image }}" alt="{{ display_name }}" class="avatar" id="user-avatar">
+        <img src="{{ card.image }}" alt="{{ card.name_on_card or card.card_id }}" class="avatar" id="user-avatar">
       {% else %}
-        <span class="avatar-fallback" id="avatar-fallback" data-name="{{ display_name }}"></span>
+        <span class="avatar-fallback" id="avatar-fallback" data-name="{{ card.name_on_card or card.card_id }}"></span>
       {% endif %}
     </div>
     <div class="company-block">
@@ -377,7 +341,7 @@
       {% endif %}
     </div>
     <div class="person-block">
-      <div class="name">{{ display_name }}</div>
+      <div class="name">{{ card.name_on_card or card.card_id }}</div>
       {% if card.designation %}
         <div class="designation">{{ card.designation }}</div>
       {% endif %}
@@ -386,18 +350,22 @@
       {% if card.email %}
         <div class="info-row">
           <span class="info-icon" aria-label="Email" title="Email">📧</span>
-          <a href="mailto:{{ card.email }}" class="info-value" tabindex="0">{{ card.email }}</a>
+          <span class="ltr-rtl-field">
+            <a href="mailto:{{ card.email }}" class="info-value" tabindex="0">{{ card.email }}</a>
+          </span>
           <button class="copy-btn" type="button" aria-label="Copy Email" data-copy="{{ card.email }}">
-            <svg fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 20 20"><rect x="5" y="7" width="11" height="10" rx="2"/><path d="M9 5V4a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"/></svg>
+            <!-- icon -->
           </button>
         </div>
       {% endif %}
       {% if card.phone %}
         <div class="info-row">
           <span class="info-icon" aria-label="Phone" title="Phone">📱</span>
-          <a href="tel:{{ card.phone }}" class="info-value" tabindex="0">{{ card.phone }}</a>
+          <span class="ltr-rtl-field">
+            <a href="tel:{{ card.phone }}" class="info-value" tabindex="0">{{ card.phone }}</a>
+          </span>
           <button class="copy-btn" type="button" aria-label="Copy Phone" data-copy="{{ card.phone }}">
-            <svg fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 20 20"><rect x="5" y="7" width="11" height="10" rx="2"/><path d="M9 5V4a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"/></svg>
+            <!-- icon -->
           </button>
         </div>
       {% endif %}
@@ -430,26 +398,24 @@
         <svg width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:3px;" viewBox="0 0 24 24"><path d="M21 10v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         <span>Share My Contact</span>
       </button>
-    </div>
-    <div class="qr-section">
-      <div class="qr-wrapper">
-        <div id="qr-code-canvas" tabindex="0" title="Click or Tap to Save Contact"></div>
-      </div>
+      <!-- Added barcode download button -->
+      <button class="btn" id="download-barcode" type="button">
+        <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;"><rect x="2" y="2" width="20" height="20" rx="4" stroke="#6db4ff" stroke-width="2" fill="none"/><path d="M6 7v10M9 7v10M15 7v10M18 7v10" stroke="#6db4ff" stroke-width="2" stroke-linecap="round"/></svg>
+        <span>Download Barcode</span>
+      </button>
     </div>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <!-- Load QRCode library for barcode generation -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script>
-    // vCard name fields: only name_on_card for FN, split for N
-    function getVCardNameFields() {
-      var name_on_card = "{{ card.name_on_card or card.card_id }}".trim();
-      var parts = name_on_card.split(/\s+/);
-      var firstName = parts.slice(0, -1).join(' ') || parts[0];
-      var lastName = parts.length > 1 ? parts[parts.length - 1] : '';
-      return { firstName, lastName, fn: name_on_card };
+    function getContactFullName() {
+      var name_on_card = "{{ card.name_on_card or card.card_id }}";
+      var company = "{{ card.company or '' }}";
+      return company ? (name_on_card + ' - ' + company) : name_on_card;
     }
     function generateVCard() {
-      var nameFields = getVCardNameFields();
+      var contactName = getContactFullName();
       var company = "{{ card.company or '' }}";
       var designation = "{{ card.designation or '' }}";
       var email = "{{ card.email or '' }}";
@@ -457,8 +423,7 @@
       var vcard = [
         "BEGIN:VCARD",
         "VERSION:3.0",
-        "N:" + nameFields.lastName + ";" + nameFields.firstName + ";;;",
-        "FN:" + nameFields.fn,
+        "FN:" + contactName,
         company ? "ORG:" + company : "",
         designation ? "TITLE:" + designation : "",
         email ? "EMAIL;TYPE=INTERNET:" + email : "",
@@ -467,48 +432,58 @@
       ].filter(Boolean).join('\n');
       return vcard;
     }
-    function drawQRCode() {
+    // --- Barcode/QR Download ---
+    function downloadQRAsImage() {
+      // Generate QR code in a hidden div
       var vcard = generateVCard();
-      var qrDiv = document.getElementById('qr-code-canvas');
-      qrDiv.innerHTML = "";
-      new QRCode(qrDiv, {
+      var tempDiv = document.createElement("div");
+      tempDiv.style.position = "fixed";
+      tempDiv.style.left = "-9999px";
+      tempDiv.style.top = "-9999px";
+      document.body.appendChild(tempDiv);
+      var qr = new QRCode(tempDiv, {
         text: vcard,
-        width: qrDiv.offsetWidth || 150,
-        height: qrDiv.offsetWidth || 150,
+        width: 320,
+        height: 320,
         colorDark: "#23272f",
         colorLight: "#fff",
         correctLevel: QRCode.CorrectLevel.Q
       });
+      setTimeout(function(){
+        var img = tempDiv.querySelector("img");
+        if (!img) {
+          // Fallback for some browsers that use canvas
+          var canvas = tempDiv.querySelector("canvas");
+          if (canvas) {
+            img = new Image();
+            img.src = canvas.toDataURL("image/png");
+          }
+        }
+        if (img && img.src) {
+          var a = document.createElement('a');
+          a.href = img.src;
+          a.download = (getContactFullName().replace(/\s+/g, "_") || "contact") + "_barcode.png";
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(function(){
+            a.remove();
+            tempDiv.remove();
+          }, 100);
+        } else {
+          tempDiv.remove();
+          alert("Could not generate barcode image. Try again.");
+        }
+      }, 350);
     }
-    function downloadVCard() {
-      var nameFields = getVCardNameFields();
-      var vcard = generateVCard();
-      var blob = new Blob([vcard], {type: "text/vcard"});
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement("a");
-      a.href = url;
-      a.download = (nameFields.fn.replace(/\s+/g, "_") || "contact") + ".vcf";
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(function() {
-        URL.revokeObjectURL(url);
-        a.remove();
-      }, 200);
-    }
-    function setupQRClickDownload() {
-      var qrDiv = document.getElementById('qr-code-canvas');
-      qrDiv.addEventListener('click', downloadVCard);
-      qrDiv.addEventListener('keydown', function(e){
-        if(e.key === "Enter" || e.key === " "){ downloadVCard(); }
-      });
-    }
+    // --- End Barcode/QR Download ---
+
     function setupVCardLink() {
-      var nameFields = getVCardNameFields();
+      var contactName = getContactFullName();
       var vcard = generateVCard();
       var encodedVcard = encodeURIComponent(vcard);
       var vcardLink = document.querySelector("#vcard-link");
       vcardLink.href = `data:text/vcard;charset=utf-8,${encodedVcard}`;
-      vcardLink.download = (nameFields.fn.replace(/\s+/g, "_") || "contact") + ".vcf";
+      vcardLink.download = (contactName.replace(/\s+/g, "_") || "contact") + ".vcf";
     }
     function stringToColor(str) {
       let hash = 0;
@@ -654,22 +629,18 @@
         sendScan();
       }
     })();
-    function redrawQRResponsive() {
-      drawQRCode();
-    }
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", function() {
-        drawQRCode();
-        setupQRClickDownload();
-        setupVCardLink();
-        window.addEventListener('resize', redrawQRResponsive);
-      });
-    } else {
-      drawQRCode();
-      setupQRClickDownload();
+
+    // --- Add barcode download handler ---
+    document.addEventListener("DOMContentLoaded", function() {
       setupVCardLink();
-      window.addEventListener('resize', redrawQRResponsive);
-    }
+      var barcodeBtn = document.getElementById('download-barcode');
+      if(barcodeBtn){
+        barcodeBtn.addEventListener('click', function() {
+          downloadQRAsImage();
+        });
+      }
+    });
+    // --- End barcode download handler ---
   </script>
 {% endif %}
 </body>
