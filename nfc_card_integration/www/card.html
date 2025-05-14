@@ -414,8 +414,16 @@
       var company = "{{ card.company or '' }}";
       return company ? (name_on_card + ' - ' + company) : name_on_card;
     }
+    function getVCardNameFields() {
+  var name_on_card = "{{ card.name_on_card or card.card_id }}".trim();
+  var parts = name_on_card.split(/\s+/);
+  var firstName = parts.slice(0, -1).join(' ') || parts[0];
+  var lastName = parts.length > 1 ? parts[parts.length - 1] : '';
+  return { firstName, lastName, fn: name_on_card };
+}
+
     function generateVCard() {
-      var contactName = getContactFullName();
+      var nameFields = getVCardNameFields();
       var company = "{{ card.company or '' }}";
       var designation = "{{ card.designation or '' }}";
       var email = "{{ card.email or '' }}";
@@ -423,7 +431,8 @@
       var vcard = [
         "BEGIN:VCARD",
         "VERSION:3.0",
-        "FN:" + contactName,
+        "N:" + nameFields.lastName + ";" + nameFields.firstName + ";;;",
+        "FN:" + nameFields.fn,
         company ? "ORG:" + company : "",
         designation ? "TITLE:" + designation : "",
         email ? "EMAIL;TYPE=INTERNET:" + email : "",
