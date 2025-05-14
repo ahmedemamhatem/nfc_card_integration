@@ -21,6 +21,12 @@ def create_nfc_card_from_employee(employee):
         except frappe.DoesNotExistError:
             pass
 
+    # Get company logo
+    company_logo = None
+    if emp.company:
+        company = frappe.get_doc("Company", emp.company)
+        company_logo = company.company_logo  # Assuming the logo field in Company doctype is 'logo'
+
     values = {
         "name_on_card": emp.employee_name,
         "designation": emp.designation,
@@ -28,6 +34,7 @@ def create_nfc_card_from_employee(employee):
         "email": emp.company_email or emp.personal_email,
         "phone": emp.cell_number,
         "image": image,
+        "company_logo": company_logo  
     }
 
     existing_name = frappe.db.exists("NFC Card", {"employee": emp.name})
@@ -48,6 +55,7 @@ def create_nfc_card_from_employee(employee):
         })
         card.insert(ignore_permissions=True)
         return card.name
+
 
 
 @frappe.whitelist(allow_guest=True)

@@ -16,7 +16,8 @@
   "designation",
   "company",
   "email",
-  "phone"
+  "phone",
+  "company_logo"
  ],
  "fields": [
   {
@@ -118,12 +119,18 @@
    "fieldname": "disabled",
    "fieldtype": "Check",
    "label": "Disabled"
+  },
+  {
+   "fieldname": "company_logo",
+   "fieldtype": "Attach Image",
+   "label": "Company Logo",
+   "read_only": 1
   }
  ],
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-05-14 19:03:22.438625",
+ "modified": "2025-05-14 23:04:58.847468",
  "modified_by": "Administrator",
  "module": "Nfc Card Integration",
  "name": "NFC Card",
