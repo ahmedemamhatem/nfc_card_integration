@@ -152,37 +152,37 @@ def insert_nfc_card_scan(card_id, latitude=None, longitude=None):
         if not card_id:
             return {"message": "ok"}
 
-        # Define the time window (last 30 minutes)
-        time_threshold = frappe.utils.now_datetime() - timedelta(minutes=30)
+        # Round coordinates to prevent float precision mismatch
+        rounded_lat = round(float(latitude or 0), 5)
+        rounded_long = round(float(longitude or 0), 5)
 
-        # Check if a similar scan already exists
-        existing_scan = frappe.db.exists(
-            "NFC Card Scan",
-            {
-                "nfc_card": card_id,
-                "latitude": latitude,
-                "longitude": longitude
-            },
-            filters={
-                "scan_time": [">", time_threshold]
-            }
-        )
+        # Time threshold: 30 minutes ago, no microseconds
+        time_threshold = (frappe.utils.now_datetime() - timedelta(minutes=30)).replace(microsecond=0)
+        formatted_threshold = time_threshold.strftime("%Y-%m-%d %H:%M:%S")
+
+        # Check for existing scan
+        existing_scan = frappe.db.sql("""
+            SELECT name FROM `tabNFC Card Scan`
+            WHERE nfc_card = %s
+              AND ROUND(latitude, 5) = %s
+              AND ROUND(longitude, 5) = %s
+              AND scan_time > %s
+            LIMIT 1
+        """, (card_id, rounded_lat, rounded_long, formatted_threshold), as_dict=True)
 
         if existing_scan:
-            # A scan already exists for this card in the same location within 30 minutes
             return {"message": "ok"}
 
-        # Generate a unique name for the scan record
+        # Generate a unique name and insert
         scan_name = frappe.generate_hash(length=20)
 
-        # Create and insert the new NFC Card Scan document
         doc = frappe.get_doc({
             "doctype": "NFC Card Scan",
             "name": scan_name,
             "nfc_card": card_id,
             "scan_time": frappe.utils.now_datetime(),
-            "latitude": latitude,
-            "longitude": longitude
+            "latitude": rounded_lat,
+            "longitude": rounded_long
         })
 
         doc.insert(ignore_permissions=True)
