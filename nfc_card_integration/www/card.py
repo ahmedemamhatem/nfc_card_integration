@@ -1,6 +1,5 @@
-# nfc_card_integration/www/card.py
-
 import frappe
+import json
 
 def get_context(context):
     card_id = frappe.request.path.rstrip('/').split('/')[-1]
@@ -10,3 +9,4 @@ def get_context(context):
     except frappe.DoesNotExistError:
         context.card = None
     return context
+

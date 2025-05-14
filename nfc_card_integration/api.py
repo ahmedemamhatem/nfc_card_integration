@@ -1,11 +1,15 @@
 import frappe
+import json
 import base64
 
 
 @frappe.whitelist()
 def create_nfc_card_from_employee(employee):
     emp = frappe.get_doc("Employee", employee)
-    card_id = (emp.attendance_device_id or emp.name).lower().replace(" ", "")
+
+    # Generate a unique hash for card_id instead of using the employee's name or attendance_device_id
+    card_id = frappe.generate_hash(length=20).lower()
+
     card_url = f"{frappe.utils.get_url()}/card/{card_id}"
     image = emp.image
 
@@ -128,3 +132,30 @@ def create_nfc_card_lead_and_email(
         # Optionally, you can set a field or status on the lead to indicate email was not sent
 
     return {"message": "ok"}
+
+
+
+@frappe.whitelist(allow_guest=True)
+def insert_nfc_card_scan(card_id, latitude, longitude):
+    try:
+        # Generate a unique name for the scan record
+        scan_name = frappe.generate_hash(length=20)
+
+        # Create and insert the new NFC Card Scan document
+        doc = frappe.get_doc({
+            "doctype": "NFC Card Scan",
+            "name": scan_name, 
+            "nfc_card": card_id,
+            "scan_time": frappe.utils.now_datetime(),
+            "latitude": latitude,
+            "longitude": longitude
+        })
+
+        doc.insert(ignore_permissions=True)  # Use ignore_permissions if needed for API or background job
+        frappe.db.commit()  # Optional: usually handled by insert(), but can ensure it in some setups
+
+        return {"status": "success", "scan_name": scan_name}
+
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), "NFC Card Scan Insert Error")
+        return {"status": "error", "message": str(e)}

@@ -33,7 +33,7 @@
   },
   {
    "fieldname": "card_id",
-   "fieldtype": "Int",
+   "fieldtype": "Data",
    "in_filter": 1,
    "in_list_view": 1,
    "in_preview": 1,
@@ -117,7 +117,7 @@
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-05-14 12:23:32.335780",
+ "modified": "2025-05-14 16:08:46.584063",
  "modified_by": "Administrator",
  "module": "Nfc Card Integration",
  "name": "NFC Card",
