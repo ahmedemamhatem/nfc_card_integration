@@ -241,10 +241,14 @@
       align-items: center;
       gap: 0.65em;
     }
+    /* ======= SHARP COLORED QR SHADOW ======= */
     #qr-code-canvas {
       background: #fff;
       border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(44,62,80,0.10);
+      box-shadow:
+        0 0 0 5px #89f7fe, /* inner sharp blue */
+        0 0 25px 8px #6db4ff, /* middle glow blue */
+        0 0 60px 15px #8de8fe; /* outer cyan glow */
       padding: 10px;
       width: 150px;
       height: 150px;
@@ -261,37 +265,13 @@
       100% { opacity:1; transform: scale(1);}
     }
     #qr-code-canvas:hover {
-      box-shadow: 0 10px 36px 0 rgba(44, 160, 255, 0.21);
-      transform: scale(1.06) rotate(-2deg);
+      box-shadow:
+        0 0 0 8px #6db4ff,
+        0 0 38px 15px #89f7fe,
+        0 0 80px 22px #6db4ff;
+      transform: scale(1.07) rotate(-2deg);
     }
-    .qr-label {
-      color: #6db4ff;
-      font-weight: 800;
-      font-size: 1.13em;
-      margin-top: 0.2em;
-      margin-bottom: 0.1em;
-      letter-spacing: 0.02em;
-    }
-    .save-qr-btn {
-      margin-top: 0.25em;
-      padding: 0.6em 1.3em;
-      border: none;
-      border-radius: 10px;
-      background: linear-gradient(90deg, #6db4ff 60%, #8de8fe 140%);
-      color: #fff;
-      font-size: 1.07em;
-      font-weight: 800;
-      cursor: pointer;
-      box-shadow: 0 2px 10px rgba(43, 128, 255, 0.11);
-      transition: background 0.18s, box-shadow 0.15s;
-      display: block;
-      letter-spacing: 0.02em;
-    }
-    .save-qr-btn:focus, .save-qr-btn:hover {
-      background: linear-gradient(90deg, #3e7ddd 80%, #6db4ff 140%);
-      color: #fff;
-      box-shadow: 0 8px 22px rgba(43,128,255,0.19);
-    }
+    /* ======= END SHARP COLORED QR SHADOW ======= */
     .toast {
       position: fixed; left: 50%; bottom: 2.2em;
       background: #23272f; color: #fafcff;
@@ -412,9 +392,7 @@
       </button>
     </div>
     <div class="qr-section">
-      <div class="qr-label">Scan to Save Contact</div>
-      <div id="qr-code-canvas"></div>
-      <button class="save-qr-btn" type="button" onclick="saveQrImage()">Save QR as Image</button>
+      <div id="qr-code-canvas" tabindex="0" title="Click or Tap to Save Contact"></div>
     </div>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -426,23 +404,23 @@
       var designation = "{{ card.designation or '' }}";
       var email = "{{ card.email or '' }}";
       var phone = "{{ card.phone or '' }}";
-      var lines = [
+      var vcard = [
         "BEGIN:VCARD",
         "VERSION:3.0",
-        "FN:" + company,
-        name ? "ORG:" + name : "",
+        "FN:" + name,
+        company ? "ORG:" + company : "",
         designation ? "TITLE:" + designation : "",
         email ? "EMAIL;TYPE=INTERNET:" + email : "",
         phone ? "TEL;TYPE=CELL:" + phone : "",
         "END:VCARD"
-      ];
-      return lines.filter(Boolean).join('\n');
+      ].filter(Boolean).join('\n');
+      return vcard;
     }
     function drawQRCode() {
       var vcard = generateVCard();
       var qrDiv = document.getElementById('qr-code-canvas');
       qrDiv.innerHTML = "";
-      var qr = new QRCode(qrDiv, {
+      new QRCode(qrDiv, {
         text: vcard,
         width: 150,
         height: 150,
@@ -451,21 +429,36 @@
         correctLevel: QRCode.CorrectLevel.Q
       });
     }
-    window.saveQrImage = function() {
-      var qrDiv = document.getElementById('qr-code-canvas');
-      var img = qrDiv.querySelector('img') || qrDiv.querySelector('canvas');
-      if (!img) return;
-      var link = document.createElement('a');
-      link.download = "digital-card-qr.png";
-      link.href = img.src || img.toDataURL("image/png");
-      link.click();
-    };
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", drawQRCode);
-    } else {
-      drawQRCode();
+    function downloadVCard() {
+      var name = "{{ card.name_on_card or card.card_id }}";
+      var vcard = generateVCard();
+      var blob = new Blob([vcard], {type: "text/vcard"});
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = (name.replace(/\s+/g, "_") || "contact") + ".vcf";
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function() {
+        URL.revokeObjectURL(url);
+        a.remove();
+      }, 200);
     }
-    // Avatar fallback as SVG with animated gradient
+    function setupQRClickDownload() {
+      var qrDiv = document.getElementById('qr-code-canvas');
+      qrDiv.addEventListener('click', downloadVCard);
+      qrDiv.addEventListener('keydown', function(e){
+        if(e.key === "Enter" || e.key === " "){ downloadVCard(); }
+      });
+    }
+    function setupVCardLink() {
+      var name = "{{ card.name_on_card or card.card_id }}";
+      var vcard = generateVCard();
+      var encodedVcard = encodeURIComponent(vcard);
+      var vcardLink = document.querySelector("#vcard-link");
+      vcardLink.href = `data:text/vcard;charset=utf-8,${encodedVcard}`;
+      vcardLink.download = (name.replace(/\s+/g, "_") || "contact") + ".vcf";
+    }
     function stringToColor(str) {
       let hash = 0;
       for (let i = 0; i < str.length; i++) {
@@ -507,7 +500,6 @@
         </svg>`;
       }
     })();
-    // Copy to clipboard with animated toast
     function showToast(msg) {
       const toast = document.getElementById('toast');
       toast.textContent = msg;
@@ -522,31 +514,6 @@
         });
       });
     });
-    // vCard download
-    window.onload = function () {
-      const name = "{{ card.name_on_card or card.card_id }}";
-      const company = "{{ card.company or '' }}";
-      const designation = "{{ card.designation or '' }}";
-      const email = "{{ card.email or '' }}";
-      const phone = "{{ card.phone or '' }}";
-      const image = "{{ card.image or '' }}";
-      const vcard = `
-        BEGIN:VCARD
-        VERSION:3.0
-        FN:${name}
-        ORG:${name}
-        TITLE:${designation}
-        EMAIL:${email}
-        TEL:${phone}
-        ${image ? `PHOTO;VALUE=URI:${image}` : ''}
-        END:VCARD
-        `.trim();
-      const encodedVcard = encodeURIComponent(vcard);
-      const vcardLink = document.querySelector("#vcard-link");
-      vcardLink.href = `data:text/vcard;charset=utf-8,${encodedVcard}`;
-      vcardLink.download = name.replace(/\s+/g, "_") + ".vcf";
-    };
-    // Lead form logic
     let userLatitude = null;
     let userLongitude = null;
     if (navigator.geolocation) {
@@ -610,7 +577,6 @@
       });
       return false;
     };
-    // Scan event logging
     (function () {
       const cardId = "{{ card.card_id }}";
       if (!cardId) return;
@@ -637,6 +603,17 @@
         sendScan();
       }
     })();
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", function() {
+        drawQRCode();
+        setupQRClickDownload();
+        setupVCardLink();
+      });
+    } else {
+      drawQRCode();
+      setupQRClickDownload();
+      setupVCardLink();
+    }
   </script>
 {% endif %}
 </body>

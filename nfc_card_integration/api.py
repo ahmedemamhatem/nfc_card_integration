@@ -151,6 +151,26 @@ def insert_nfc_card_scan(card_id, latitude=None, longitude=None):
         if not card_id:
             return {"message": "ok"}
 
+        # Define the time window (last 30 minutes)
+        time_threshold = frappe.utils.add_minutes(frappe.utils.now_datetime(), -30)
+
+        # Check if a similar scan already exists
+        existing_scan = frappe.db.exists(
+            "NFC Card Scan",
+            {
+                "nfc_card": card_id,
+                "latitude": latitude,
+                "longitude": longitude
+            },
+            filters={
+                "scan_time": [">", time_threshold]
+            }
+        )
+
+        if existing_scan:
+            # A scan already exists for this card in the same location within 30 minutes
+            return {"message": "ok"}
+
         # Generate a unique name for the scan record
         scan_name = frappe.generate_hash(length=20)
 
