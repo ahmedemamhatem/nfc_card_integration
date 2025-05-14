@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Write NFC Card – {{ card.name_on_card or card.card_id }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial, sans-serif; background: #f5f6fa; margin: 0; padding: 0; }
+    .container { max-width: 400px; margin: 2em auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); padding: 2em; text-align: center; }
+    .info { margin: 1.5em 0; }
+    .btn {
+      background: #0097e6; color: #fff; border: none; padding: 1em 2em;
+      border-radius: 5px; font-size: 1.1em; margin-top: 1em; cursor: pointer;
+    }
+    .btn:disabled { background: #dcdde1; color: #718093; }
+    #status { margin-top: 1em; font-size: 1.05em; }
+    .card-url {
+      font-size: 1.1em; color: #273c75; word-break: break-all;
+      background: #e6f7ff; border-radius: 5px; padding: 0.7em; margin-bottom: 1em;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Write to NFC Card</h2>
+    <div class="info">
+      <strong>Card for:</strong> {{ card.name_on_card or card.card_id }}<br>
+      <div class="card-url">{{ card.card_url }}</div>
+      <div>Tap below, then hold your blank NFC card near your device.</div>
+      <button id="writeBtn" class="btn" onclick="writeNFC()">Write to NFC</button>
+      <div id="status"></div>
+    </div>
+    <div style="color: #888; margin-top: 2em;">
+      Works best on Android with Chrome 89+.<br>
+      (iPhone does not support Web NFC for writing.)
+    </div>
+  </div>
+  <script>
+    function writeNFC() {
+      document.getElementById('status').innerText = '';
+      const url = "{{ card.card_url }}";
+      if (!('NDEFReader' in window)) {
+        document.getElementById('status').innerText = "Web NFC not supported. Use Chrome on Android.";
+        return;
+      }
+      const writer = new NDEFReader();
+      writer.write({
+        records: [
+          { recordType: "url", data: url }
+        ]
+      }).then(() => {
+        document.getElementById('status').innerText = "✅ Success! NFC card written. Test by scanning with any phone.";
+      }).catch(e => {
+        document.getElementById('status').innerText = "❌ Failed: " + e;
+      });
+    }
+  </script>
+</body>
+</html>

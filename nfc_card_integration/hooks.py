@@ -7,8 +7,29 @@ app_license = "mit"
 
 # Apps
 # ------------------
+app_include_js = [
+    "/assets/nfc_card_integration/js/nfc_card_form.js",
+    "/assets/nfc_card_integration/js/employee_custom.js"
+]
 
+doc_events = {
+    "NFC Card": {
+        "autoname": "nfc_card_integration.nfc_card_integration.doctype.nfc_card.nfc_card.autoname",
+        "validate": "nfc_card_integration.nfc_card_integration.doctype.nfc_card.nfc_card.validate"
+    }
+}
 # required_apps = []
+
+website_route_rules = [
+    {"from_route": "/write_nfc/<card_id>", "to_route": "write_nfc"},
+    {"from_route": "/card/<card_id>", "to_route": "card"},
+]
+
+jenv = {
+    "methods": [
+        "encrypt_card_id:nfc_card_integration.utils.crypto.encrypt_card_id"
+    ]
+}
 
 # Each item in the list will be shown as an app in the apps page
 # add_to_apps_screen = [

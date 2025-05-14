@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ card.name_on_card or card.card_id }} – Digital Business Card</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial, sans-serif; background: #f5f6fa; margin: 0; padding: 0; }
+    .card-container { max-width: 400px; margin: 2em auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); padding: 2em; text-align: center; }
+    .avatar { width: 120px; height: 120px; border-radius: 50%; margin-bottom: 1em; object-fit: cover; border: 3px solid #0097e6; }
+    h1 { margin: 0.3em 0 0.1em 0; font-size: 2em; color: #222; }
+    .role { color: #555; font-size: 1.1em; margin-bottom: 1em; }
+    .info { margin: 1em 0; }
+    .info div { margin: 0.3em 0; }
+    .vcard-btn, .lead-btn {
+      background: #0097e6;
+      color: #fff;
+      border: none;
+      padding: 1em 2em;
+      border-radius: 5px;
+      font-size: 1.1em;
+      margin-top: 1.2em;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      margin-right: 0.7em;
+    }
+    .vcard-btn:hover, .lead-btn:hover { background: #005c99; }
+    .msg { margin: 1em 0; color: #27ae60; }
+    .lead-form {
+      text-align: left;
+      margin: 1.5em 0 0 0;
+      background: #f0f4f8;
+      border-radius: 6px;
+      padding: 1em 1.2em;
+      display: none;
+    }
+    .lead-form input {
+      width: 97%;
+      padding: 8px;
+      border: 1px solid #d0d2d6;
+      border-radius: 4px;
+      margin-bottom: 0.7em;
+      font-size: 1em;
+    }
+    .lead-form label { margin-bottom: 0.2em; font-size: 1em; display: block;}
+    .lead-form .btn { width: 100%; }
+    .error { color: #e74c3c; }
+  </style>
+</head>
+<body>
+  <div class="card-container">
+
+    <img src="{{ card.image or '/assets/frappe/images/avatar.png' }}" alt="{{ card.name_on_card or card.card_id }}" class="avatar">
+    <h1>{{ card.name_on_card or card.card_id }}</h1>
+    <div class="role">{{ card.designation or '' }}</div>
+    <div class="info">
+      {% if card.email %}<div>📧 {{ card.email }}</div>{% endif %}
+      {% if card.phone %}<div>📱 {{ card.phone }}</div>{% endif %}
+      {% if card.company %}<div>🏢 {{ card.company }}</div>{% endif %}
+    </div>
+    <a 
+      id="vcard-link"
+      href="#"
+      class="vcard-btn"
+      download=""
+    >Add to Contacts</a>
+    <button class="lead-btn" id="open-lead-form">Send My Contact to This Company</button>
+    <div id="lead-msg" class="msg"></div>
+    <form id="lead-form" class="lead-form" autocomplete="on" onsubmit="return false;">
+      <label for="lead_name">Your Name*</label>
+      <input type="text" id="lead_name" required>
+      <label for="lead_email">Email*</label>
+      <input type="email" id="lead_email" required>
+      <label for="lead_phone">Phone*</label>
+      <input type="tel" id="lead_phone" required>
+      <label for="lead_company">Company</label>
+      <input type="text" id="lead_company">
+      <button type="submit" class="btn">Send Contact</button>
+      <div id="lead-error" class="error"></div>
+    </form>
+  </div>
+  <script>
+    // Build and set the vCard link dynamically with JS encoding
+    window.onload = function() {
+      var name = "{{ card.name_on_card or card.card_id }}";
+      var company = "{{ card.company or '' }}";
+      var designation = "{{ card.designation or '' }}";
+      var email = "{{ card.email or '' }}";
+      var phone = "{{ card.phone or '' }}";
+      var image = "{{ card.image or '' }}";
+      var vcard =
+        "BEGIN:VCARD\n" +
+        "VERSION:3.0\n" +
+        "FN:" + name + "\n" +
+        "ORG:" + company + "\n" +
+        "TITLE:" + designation + "\n" +
+        "EMAIL:" + email + "\n" +
+        "TEL:" + phone + "\n" +
+        (image ? "PHOTO;VALUE=URI:" + image + "\n" : "") +
+        "END:VCARD";
+      var encoded_vcard = encodeURIComponent(vcard);
+      var vcard_link = document.getElementById("vcard-link");
+      vcard_link.href = "data:text/vcard;charset=utf-8," + encoded_vcard;
+      vcard_link.download = name.replace(/\s+/g, "_") + ".vcf";
+    };
+
+    // Show the form when button is clicked
+    document.getElementById('open-lead-form').onclick = function() {
+      document.getElementById('lead-form').style.display = 'block';
+      document.getElementById('lead-msg').innerText = '';
+      this.style.display = 'none';
+    };
+
+    // Email validation function
+    function validateEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    document.getElementById('lead-form').onsubmit = function() {
+      var name = document.getElementById('lead_name').value.trim();
+      var email = document.getElementById('lead_email').value.trim();
+      var phone = document.getElementById('lead_phone').value.trim();
+      var company = document.getElementById('lead_company').value.trim();
+
+      var error = '';
+      if (!name || !email || !phone) {
+        error = "Please fill all required fields.";
+      } else if (!validateEmail(email)) {
+        error = "Please enter a valid email.";
+      }
+      if (error) {
+        document.getElementById('lead-error').innerText = error;
+        return false;
+      }
+      document.getElementById('lead-error').innerText = '';
+
+      // Send to backend
+      fetch('/api/method/nfc_card_integration.api.create_nfc_card_lead_and_email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+          // If you need CSRF, add it here! Example:
+          // 'X-Frappe-CSRF-Token': csrf_token
+        },
+        body: JSON.stringify({
+          card_id: "{{ card.card_id }}",
+          customer_name: name,
+          customer_email: email,
+          customer_phone: phone,
+          customer_company: company
+        })
+      })
+      .then(r => r.json())
+      .then(data => {
+        console.log("API response:", data);
+        let msg = data.message && data.message.message ? data.message.message : data.message;
+        if(msg === "ok") {
+          document.getElementById('lead-msg').innerText = "✅ Your info was sent! Thank you.";
+          document.getElementById('lead-msg').style.color = "#27ae60";
+          document.getElementById('lead-form').reset();
+          document.getElementById('lead-form').style.display = 'none';
+          document.getElementById('open-lead-form').style.display = '';
+          document.getElementById('lead-error').innerText = '';
+        } else {
+          document.getElementById('lead-error').innerText =
+            "Could not send. " + (msg || JSON.stringify(data));
+        }
+      })
+      .catch((e) => {
+        document.getElementById('lead-error').innerText = "Could not send. Try again later.";
+        console.error(e);
+      });
+
+      return false;
+    };
+  </script>
+</body>
+</html>
+</html>
