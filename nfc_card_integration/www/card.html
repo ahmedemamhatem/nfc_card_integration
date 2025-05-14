@@ -4,138 +4,142 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ card.name_on_card or card.card_id }} – Digital Business Card</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
     html, body { height: 100%; }
     body {
       font-family: 'Inter', Arial, sans-serif;
-      background: linear-gradient(132deg, #e3f0ff 0%, #fafcff 100%);
-      margin: 0; padding: 0;
       min-height: 100vh;
+      background: linear-gradient(132deg, #89f7fe 0%, #66a6ff 100%);
+      margin: 0; padding: 0;
       display: flex; align-items: center; justify-content: center;
+      transition: background 1.2s cubic-bezier(.53,.01,.37,1);
     }
     .card-container {
-      width: 100%; max-width: 430px;
-      background: rgba(255,255,255,0.98);
-      border-radius: 24px;
-      box-shadow: 0 8px 32px 0 rgba(44, 62, 80, 0.14), 0 2px 8px 0 rgba(0,0,0,0.08);
-      padding: 2.2em 1.7em 2em 1.7em;
-      text-align: center; 
-      backdrop-filter: blur(5px);
-      border: 1.5px solid #e3eaf0;
+      animation: fadeInUp 0.9s cubic-bezier(.39,.46,.38,.97);
+      width: 100%;
+      max-width: 430px;
+      background: linear-gradient(120deg, #fafdff 60%, #dfefff 100%);
+      border-radius: 26px;
+      box-shadow: 0 12px 34px 0 rgba(50,80,120,0.16), 0 2px 8px 0 rgba(0,0,0,0.08);
+      padding: 2.3em 1.2em 2.2em 1.2em;
+      text-align: center;
+      border: 1.5px solid #dbefff;
+      margin: 2vw;
+      box-sizing: border-box;
       position: relative;
-      animation: fadeInCard 0.7s cubic-bezier(.43,.07,.54,1.08);
-      overflow: hidden;
+      z-index: 1;
     }
-    @keyframes fadeInCard {
-      from { opacity: 0; transform: translateY(40px) scale(0.97);}
-      to { opacity: 1; transform: none;}
-    }
-    .not-found-icon {
-      margin: 0 auto 1.3em auto;
-      width: 60px; height: 60px;
-      background: #fae7e7;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 2px 12px rgba(231,76,60,0.09);
-    }
-    .not-found-icon svg {
-      width: 34px; height: 34px;
-      display: block;
-      color: #e74c3c;
-    }
-    .not-found-title {
-      color: #e74c3c;
-      font-size: 1.35em;
-      font-weight: 800;
-      margin-bottom: 0.3em;
-      letter-spacing: 0.02em;
-    }
-    .not-found-desc {
-      color: #888;
-      font-size: 1.06em;
-      margin-bottom: 0.7em;
+    @keyframes fadeInUp {
+      0% { opacity: 0; transform: translateY(60px) scale(0.97);}
+      100% { opacity: 1; transform: none;}
     }
     .avatar-wrapper {
       display: flex; align-items: center; justify-content: center;
-      margin-bottom: 1.2em;
+      margin-bottom: 1.25em;
     }
     .avatar, .avatar-fallback {
-      width: 95px; height: 95px; border-radius: 50%;
+      width: 90px; height: 90px; border-radius: 50%;
       object-fit: cover;
-      border: 3px solid #4078ff;
+      border: 3.5px solid #6eafff;
       background: #f3fafd;
-      box-shadow: 0 0 0 3px #e6f3ff, 0 2px 12px rgba(40, 110, 215, 0.10);
+      box-shadow: 0 0 0 3px #e6f3ff, 0 2px 10px rgba(40, 110, 215, 0.09);
       margin: 0 auto;
+      transition: box-shadow 0.3s;
     }
     .avatar-fallback {
       display: flex; align-items: center; justify-content: center;
-      font-size: 2.4em; font-weight: 800;
+      font-size: 2.2em; font-weight: 800;
       color: #fff; letter-spacing: 1px; user-select: none;
       overflow: hidden;
-      transition: background 0.3s;
-    }
-    .avatar-fallback svg {
-      width: 100%; height: 100%; display: block;
     }
     .company-block {
-      margin-bottom: 0.6em;
+      margin-bottom: 0.36em;
     }
     .company-block .company {
-      font-size: 1.17rem;
-      font-weight: 700;
-      color: #4078ff;
+      font-size: 1.06rem;
+      font-weight: 800;
+      color: #65a9f8;
       letter-spacing: 0.01em;
-      margin-bottom: 0.2em;
+      text-shadow: 0 1px 7px #e8f3ff;
+      text-transform: uppercase;
     }
     .person-block .name {
       margin: 0.12em 0 0 0;
-      font-size: 2.05rem;
-      font-weight: 800;
-      color: #1a3552;
+      font-size: 1.35rem;
+      font-weight: 900;
+      color: #2e4b5e;
       letter-spacing: 0.01em;
       line-height: 1.13;
       word-break: break-word;
+      text-shadow: 0 2px 8px #e8f3ff;
     }
     .person-block .designation {
       margin: 0.3em 0 0 0;
-      font-size: 1.11rem;
-      font-weight: 600;
-      color: #233a61;
+      font-size: 1.06rem;
+      font-weight: 700;
+      color: #3e6fa2;
       letter-spacing: 0.01em;
     }
     .info {
-      margin: 1.3em 0 1.4em;
-      color: #455;
+      margin: 1.25em 0 1.45em;
       text-align: left;
-      border-radius: 13px;
-      font-size: 1.08em;
-      padding: 0.8em 0.2em 0.7em 0.2em;
-      background: linear-gradient(90deg, #f8fbff 80%, #f7faff 100%);
-      border: 1px solid #e6edf6;
-      box-shadow: 0 1.5px 7px rgba(44, 130, 201, 0.06);
+      border-radius: 15px;
+      font-size: 1.09em;
+      padding: 0.62em 0.2em 0.62em 0.2em;
+      background: linear-gradient(90deg, #fafdff 80%, #e6f3ff 100%);
+      border: 1.5px solid #e6edf6;
+      box-shadow: 0 2px 8px rgba(44, 130, 201, 0.06);
     }
-    .info div {
-      margin: 0.38em 0; font-size: 1.07rem; word-break: break-word;
-      display: flex; align-items: center; gap: 0.5em;
-      padding-left: 3px;
-      position: relative;
+    .info-row {
+      display: flex;
+      align-items: center;
+      gap: 0.7em;
+      margin: 0.46em 0;
+      width: 100%;
+      padding: 0.3em 0.2em;
+      border-radius: 7px;
+      transition: background 0.18s;
     }
-    .info strong { color: #1a3552; font-weight: 600; margin-right: 0.1em; }
-    .info .copy-btn {
-      background: none; border: none; color: #4078ff; cursor: pointer; 
-      font-size: 1em; margin-left: 0.16em; padding: 0;
-      display: inline-flex; align-items: center; transition: color 0.2s;
+    .info-row:hover {
+      background: #eeefff;
     }
-    .info .copy-btn:focus, .info .copy-btn:hover {
-      color: #233a61;
+    .info-row .info-icon {
+      font-size: 1.18em;
+      min-width: 1.6em;
+      text-align: center;
+      color: #7ec7ff;
+      line-height: 1.3;
+    }
+    .info-row .info-value {
+      color: #2e4b5e;
+      font-size: 1.03em;
+      word-break: break-all;
+      flex: 1 1 0;
+      text-decoration: none;
+      outline: none;
+      transition: color 0.13s;
+      padding-left: 0.1em;
+      padding-right: 0.1em;
+      font-weight: 600;
+    }
+    .info-row .copy-btn {
+      background: none; border: none; color: #7ec7ff; cursor: pointer; 
+      font-size: 1.1em; padding: 0 0.2em;
+      display: inline-flex; align-items: center; transition: color 0.22s;
+      margin-left: 0.12em;
+    }
+    .info-row .copy-btn:focus, .info-row .copy-btn:hover {
+      color: #2e4b5e;
+    }
+    .info-row .copy-btn svg {
+      width: 19px; height: 19px;
     }
     .action-buttons {
       display: flex;
       flex-direction: column;
-      gap: 0.85em;
-      margin: 2.1em 0 0.2em 0;
+      gap: 0.7em;
+      margin: 1.5em 0 0em 0;
       align-items: stretch;
       width: 100%;
       max-width: 330px;
@@ -143,56 +147,67 @@
       margin-right: auto;
     }
     .btn {
-      background: linear-gradient(90deg, #4078ff 70%, #53d3ec 120%);
+      background: linear-gradient(90deg, #6db4ff 60%, #8de8fe 140%);
       color: #fff;
       border: none;
       padding: 1em 1.2em;
-      border-radius: 12px;
-      font-size: 1.17rem;
-      font-weight: 700;
+      border-radius: 15px;
+      font-size: 1.13rem;
+      font-weight: 800;
       cursor: pointer;
       text-decoration: none;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 24px rgba(43, 128, 255, 0.17), 0 1.5px 5px rgba(0,0,0,0.07);
+      box-shadow: 0 7px 32px rgba(43, 128, 255, 0.14), 0 2px 8px rgba(0,0,0,0.07);
       outline: none;
-      transition: all 0.21s cubic-bezier(.4,.09,.51,.93);
-      letter-spacing: .015em;
+      transition: all 0.22s cubic-bezier(.4,.09,.51,.93);
+      letter-spacing: .017em;
       position: relative;
-      min-height: 52px;
-      min-width: 140px;
+      min-height: 46px;
+      min-width: 100px;
       font-family: inherit;
       gap: 0.7em;
+      overflow: hidden;
+    }
+    .btn:before {
+      content:"";
+      position:absolute;
+      left:-40%; top:-50%; width:180%; height:200%;
+      background:linear-gradient(120deg,rgba(255,255,255,0.14) 0,rgba(200,220,255,0.09) 100%);
+      opacity:0; transition: opacity 0.29s;
+      z-index: 0;
     }
     .btn:focus, .btn:hover {
-      background: linear-gradient(90deg, #233a61 80%, #4078ff 120%);
+      background: linear-gradient(90deg, #3e7ddd 80%, #6db4ff 140%);
       color: #fff;
-      transform: translateY(-2px) scale(1.045);
-      box-shadow: 0 8px 22px rgba(43,128,255,0.23);
+      transform: translateY(-3px) scale(1.055);
+      box-shadow: 0 12px 30px rgba(43,128,255,0.19);
     }
+    .btn:focus:before, .btn:hover:before { opacity:1; }
+    .btn span { position:relative; z-index:1; }
     .btn-secondary {
       background: linear-gradient(92deg, #f7faff 60%, #eaf6fb 120%);
-      color: #4078ff;
-      border: 1.8px solid #4078ff;
+      color: #6db4ff;
+      border: 2px solid #6db4ff;
       box-shadow: none;
       font-weight: 700;
       transition: border-color 0.22s, color 0.22s, background 0.22s;
     }
     .btn-secondary:focus, .btn-secondary:hover {
-      color: #233a61;
-      border-color: #233a61;
-      background: linear-gradient(92deg, #eef5ff 60%, #cbe4f7 120%);
+      color: #2e4b5e;
+      border-color: #2e4b5e;
+      background: linear-gradient(92deg, #e4f0ff 60%, #cbe4f7 120%);
       transform: translateY(-2px) scale(1.045);
     }
     .msg {
-      margin: 0.7em 0 0.3em; font-size: 1.04rem;
-      color: #27ae60; font-weight: 600; min-height: 1.15em; text-align: center;
+      margin: 0.7em 0 0.3em; font-size: 1.09rem;
+      color: #27ae60; font-weight: 700; min-height: 1.15em; text-align: center;
     }
     .lead-form {
       text-align: left; margin-top: 1.2em;
       background: #f7faff; border-radius: 15px;
-      padding: 1.15em 1.25em 1.25em 1.25em; display: none;
+      padding: 1.1em 1em 1.1em 1em; display: none;
       animation: fadeIn 0.47s cubic-bezier(.39,.07,.58,1.12);
       border: 1.5px solid #e2e9ef; 
       box-shadow: 0 2px 10px rgba(43, 128, 255, 0.07);
@@ -203,12 +218,12 @@
     }
     .lead-form input {
       width: 100%; padding: 11px; border: 1.2px solid #cbe4f7;
-      border-radius: 7px; margin-bottom: 1em;
-      font-size: 1.03em; background: #fff; transition: border 0.2s; font-family: inherit;
+      border-radius: 8px; margin-bottom: 1em;
+      font-size: 1.05em; background: #fff; transition: border 0.2s; font-family: inherit;
     }
-    .lead-form input:focus { border: 1.5px solid #4078ff; outline: none; }
+    .lead-form input:focus { border: 1.5px solid #65a9f8; outline: none; }
     .lead-form label {
-      margin-bottom: 0.35em; font-size: 1em; font-weight: 600;
+      margin-bottom: 0.35em; font-size: 1em; font-weight: 700;
       color: #3973b7; display: block;
     }
     .lead-form .btn {
@@ -216,300 +231,413 @@
     }
     .error {
       color: #e74c3c;
-      font-size: 0.98em; margin-top: 0.6em; font-weight: 600;
+      font-size: 1.02em; margin-top: 0.6em; font-weight: 700;
+    }
+    .qr-section {
+      margin-top: 1.7em;
+      margin-bottom: 0.9em;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.65em;
+    }
+    #qr-code-canvas {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(44,62,80,0.10);
+      padding: 10px;
+      width: 150px;
+      height: 150px;
+      max-width: 75vw;
+      max-height: 75vw;
+      margin: 0 auto;
+      display: block;
+      transition: box-shadow 0.3s, transform 0.24s cubic-bezier(.60,.6,.36,1.34);
+      cursor: pointer;
+      animation: qrPopIn 1s cubic-bezier(.39,.46,.38,.97);
+    }
+    @keyframes qrPopIn {
+      0% { opacity:0; transform: scale(0.5);}
+      100% { opacity:1; transform: scale(1);}
+    }
+    #qr-code-canvas:hover {
+      box-shadow: 0 10px 36px 0 rgba(44, 160, 255, 0.21);
+      transform: scale(1.06) rotate(-2deg);
+    }
+    .qr-label {
+      color: #6db4ff;
+      font-weight: 800;
+      font-size: 1.13em;
+      margin-top: 0.2em;
+      margin-bottom: 0.1em;
+      letter-spacing: 0.02em;
+    }
+    .save-qr-btn {
+      margin-top: 0.25em;
+      padding: 0.6em 1.3em;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #6db4ff 60%, #8de8fe 140%);
+      color: #fff;
+      font-size: 1.07em;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(43, 128, 255, 0.11);
+      transition: background 0.18s, box-shadow 0.15s;
+      display: block;
+      letter-spacing: 0.02em;
+    }
+    .save-qr-btn:focus, .save-qr-btn:hover {
+      background: linear-gradient(90deg, #3e7ddd 80%, #6db4ff 140%);
+      color: #fff;
+      box-shadow: 0 8px 22px rgba(43,128,255,0.19);
     }
     .toast {
       position: fixed; left: 50%; bottom: 2.2em;
       background: #23272f; color: #fafcff;
       padding: 0.62em 1.55em; border-radius: 24px;
-      font-size: 1.05em; font-weight: 600;
-      transform: translateX(-50%) scale(0.97);
+      font-size: 1.05em; font-weight: 700;
+      box-shadow: 0 4px 20px rgba(44,62,80,0.12);
       opacity: 0; pointer-events: none; 
       z-index: 1000;
-      box-shadow: 0 4px 20px rgba(44,62,80,0.12);
-      transition: opacity 0.25s, transform 0.28s;
+      transform: translateX(-50%) translateY(30px) scale(0.98);
+      transition: opacity 0.35s, transform 0.38s cubic-bezier(.58,.13,.44,1.12);
     }
     .toast.show {
-      opacity: 1; transform: translateX(-50%) scale(1.03);
+      opacity: 1; 
+      transform: translateX(-50%) translateY(0) scale(1.03);
       pointer-events: auto;
     }
     @media (max-width: 540px) {
-      .card-container { padding: 1.1em 0.1em 1.1em 0.1em; max-width: 99vw;}
-      .avatar, .avatar-fallback { width: 70px; height: 70px; font-size: 2em;}
-      .person-block .name { font-size: 1.27rem;}
-      .person-block .designation { font-size: 1em;}
-      .company-block .company { font-size: 1.05em;}
-      .btn, .btn-secondary { font-size: 1em; min-width: 100px;}
-      .lead-form { padding: 1em 0.6em 1.1em 0.6em;}
-      .action-buttons { max-width: 98vw; }
+      body { padding: 0; }
+      .card-container {
+        padding: 1.2em 3vw 1.1em 3vw;
+        max-width: 100vw;
+        border-radius: 18px;
+      }
+      .avatar, .avatar-fallback { width: 54px; height: 54px; font-size: 1.2em;}
+      .person-block .name { font-size: 1.09rem;}
+      .person-block .designation { font-size: .95em;}
+      .company-block .company { font-size: .95em;}
+      .btn, .btn-secondary { font-size: .97em; min-width: 90px; min-height: 40px;}
+      .lead-form { padding: 0.7em 0.3em 0.8em 0.3em;}
+      .action-buttons { max-width: 100vw; }
+      .info { font-size: 0.97em; padding: 0.47em 0.06em 0.33em 0.06em;}
+      .info-row .info-label { min-width: 42px; font-size: .95em;}
+      .info-row .info-icon { font-size: 1em; min-width: 1.2em;}
+      #qr-code-canvas { width: 110px; height: 110px; }
     }
     .btn:focus-visible, .btn-secondary:focus-visible, .copy-btn:focus-visible {
-      outline: 2.5px solid #4078ff;
+      outline: 2.5px solid #6db4ff;
       outline-offset: 2px;
     }
   </style>
 </head>
 <body>
-  {% if not card.card_id %}
-    <div class="card-container">
-      <div class="not-found-icon">
-        <svg viewBox="0 0 32 32" fill="none" stroke="#e74c3c" stroke-width="2">
-          <circle cx="16" cy="16" r="14" fill="#fae7e7" stroke="#e74c3c" stroke-width="2"/>
-          <line x1="11" y1="11" x2="21" y2="21" stroke="#e74c3c" stroke-width="2"/>
-          <line x1="21" y1="11" x2="11" y2="21" stroke="#e74c3c" stroke-width="2"/>
-        </svg>
-      </div>
-      <div class="not-found-title">Page Not Found</div>
-      <div class="not-found-desc">The card you are looking for does not exist.</div>
+{% if not card.card_id %}
+  <div class="card-container">
+    <div class="not-found-title" style="color:#e74c3c;font-size:1.5em;font-weight:800;margin-bottom:1.7em;">
+      Page Not Found
+      <div style="font-size:3em;">😢</div>
     </div>
-  {% else %}
-    <div class="card-container" aria-label="Business Card for {{ card.name_on_card or card.card_id }}">
-      <div class="avatar-wrapper">
-        {% if card.image %}
-          <img src="{{ card.image }}" alt="{{ card.name_on_card or card.card_id }}" class="avatar" id="user-avatar">
-        {% else %}
-          <span class="avatar-fallback" id="avatar-fallback" data-name="{{ card.name_on_card or card.card_id }}"></span>
-        {% endif %}
-      </div>
-      <div class="company-block">
-        {% if card.company %}
-          <div class="company">{{ card.company }}</div>
-        {% endif %}
-      </div>
-      <div class="person-block">
-        <div class="name">{{ card.name_on_card or card.card_id }}</div>
-        {% if card.designation %}
-          <div class="designation">{{ card.designation }}</div>
-        {% endif %}
-      </div>
-      <div class="info" aria-label="Contact Info">
-        {% if card.email %}
-          <div>
-            <span aria-label="Email" title="Email">📧</span> 
-            <strong>Email:</strong>
-            <a href="mailto:{{ card.email }}" style="color:#4078ff;text-decoration:none;" tabindex="0">{{ card.email }}</a>
-            <button class="copy-btn" type="button" aria-label="Copy Email" data-copy="{{ card.email }}">
-              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 20 20"><rect x="5" y="7" width="11" height="10" rx="2"/><path d="M9 5V4a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"/></svg>
-            </button>
-          </div>
-        {% endif %}
-        {% if card.phone %}
-          <div>
-            <span aria-label="Phone" title="Phone">📱</span>
-            <strong>Phone:</strong>
-            <a href="tel:{{ card.phone }}" style="color:#4078ff;text-decoration:none;" tabindex="0">{{ card.phone }}</a>
-            <button class="copy-btn" type="button" aria-label="Copy Phone" data-copy="{{ card.phone }}">
-              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 20 20"><rect x="5" y="7" width="11" height="10" rx="2"/><path d="M9 5V4a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"/></svg>
-            </button>
-          </div>
-        {% endif %}
-        {% if card.company and not card.designation %}
-          <div>🏢 <strong>Company:</strong> {{ card.company }}</div>
-        {% endif %}
-      </div>
-      <div id="lead-msg" class="msg" aria-live="polite"></div>
-      <form id="lead-form" class="lead-form" autocomplete="on" onsubmit="return false;">
-        <label for="lead_name">Your Name*</label>
-        <input type="text" id="lead_name" required autocomplete="name">
-        <label for="lead_email">Email*</label>
-        <input type="email" id="lead_email" required autocomplete="email">
-        <label for="lead_phone">Phone*</label>
-        <input type="tel" id="lead_phone" required autocomplete="tel">
-        <label for="lead_company">Company</label>
-        <input type="text" id="lead_company" autocomplete="organization">
-        <button type="submit" class="btn">Send My Details</button>
-        <div id="lead-error" class="error"></div>
-      </form>
-      <div class="action-buttons">
-        <a id="vcard-link" href="#" class="btn" download="" tabindex="0" aria-label="Save Contact Card">
-          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;" viewBox="0 0 24 24"><path d="M12 16v-8"/><path d="M8 12l4 4 4-4"/><rect x="4" y="18" width="16" height="2" rx="1"/></svg>
-          <span>Save to Phone</span>
-        </a>
-        <button class="btn btn-secondary" id="open-lead-form" type="button">
-          <svg width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:3px;" viewBox="0 0 24 24"><path d="M21 10v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          <span>Share My Contact</span>
-        </button>
-      </div>
+    <div class="not-found-desc" style="color:#888;font-size:1.13em;margin-bottom:0.7em;">The card you are looking for does not exist.</div>
+  </div>
+{% else %}
+  <div class="card-container" aria-label="Business Card for {{ card.name_on_card or card.card_id }}">
+    <div class="avatar-wrapper">
+      {% if card.image %}
+        <img src="{{ card.image }}" alt="{{ card.name_on_card or card.card_id }}" class="avatar" id="user-avatar">
+      {% else %}
+        <span class="avatar-fallback" id="avatar-fallback" data-name="{{ card.name_on_card or card.card_id }}"></span>
+      {% endif %}
     </div>
-    <div class="toast" id="toast" role="status" aria-live="polite"></div>
-    <script>
-  // --- Avatar fallback as SVG ---
-  function stringToColor(str) {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    <div class="company-block">
+      {% if card.company %}
+        <div class="company">{{ card.company }}</div>
+      {% endif %}
+    </div>
+    <div class="person-block">
+      <div class="name">{{ card.name_on_card or card.card_id }}</div>
+      {% if card.designation %}
+        <div class="designation">{{ card.designation }}</div>
+      {% endif %}
+    </div>
+    <div class="info" aria-label="Contact Info">
+      {% if card.email %}
+        <div class="info-row">
+          <span class="info-icon" aria-label="Email" title="Email">📧</span>
+          <a href="mailto:{{ card.email }}" class="info-value" tabindex="0">{{ card.email }}</a>
+          <button class="copy-btn" type="button" aria-label="Copy Email" data-copy="{{ card.email }}">
+            <svg fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 20 20"><rect x="5" y="7" width="11" height="10" rx="2"/><path d="M9 5V4a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"/></svg>
+          </button>
+        </div>
+      {% endif %}
+      {% if card.phone %}
+        <div class="info-row">
+          <span class="info-icon" aria-label="Phone" title="Phone">📱</span>
+          <a href="tel:{{ card.phone }}" class="info-value" tabindex="0">{{ card.phone }}</a>
+          <button class="copy-btn" type="button" aria-label="Copy Phone" data-copy="{{ card.phone }}">
+            <svg fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 20 20"><rect x="5" y="7" width="11" height="10" rx="2"/><path d="M9 5V4a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"/></svg>
+          </button>
+        </div>
+      {% endif %}
+      {% if card.company and not card.designation %}
+        <div class="info-row">
+          <span class="info-icon" aria-label="Company" title="Company">🏢</span>
+          <span class="info-value">{{ card.company }}</span>
+        </div>
+      {% endif %}
+    </div>
+    <div id="lead-msg" class="msg" aria-live="polite"></div>
+    <form id="lead-form" class="lead-form" autocomplete="on" onsubmit="return false;">
+      <label for="lead_name">Your Name*</label>
+      <input type="text" id="lead_name" required autocomplete="name">
+      <label for="lead_email">Email*</label>
+      <input type="email" id="lead_email" required autocomplete="email">
+      <label for="lead_phone">Phone*</label>
+      <input type="tel" id="lead_phone" required autocomplete="tel">
+      <label for="lead_company">Company</label>
+      <input type="text" id="lead_company" autocomplete="organization">
+      <button type="submit" class="btn">Send My Details</button>
+      <div id="lead-error" class="error"></div>
+    </form>
+    <div class="action-buttons">
+      <a id="vcard-link" href="#" class="btn" download="" tabindex="0" aria-label="Save Contact Card">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;" viewBox="0 0 24 24"><path d="M12 16v-8"/><path d="M8 12l4 4 4-4"/><rect x="4" y="18" width="16" height="2" rx="1"/></svg>
+        <span>Save to Phone</span>
+      </a>
+      <button class="btn btn-secondary" id="open-lead-form" type="button">
+        <svg width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:3px;" viewBox="0 0 24 24"><path d="M21 10v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span>Share My Contact</span>
+      </button>
+    </div>
+    <div class="qr-section">
+      <div class="qr-label">Scan to Save Contact</div>
+      <div id="qr-code-canvas"></div>
+      <button class="save-qr-btn" type="button" onclick="saveQrImage()">Save QR as Image</button>
+    </div>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script>
+    function generateVCard() {
+      var name = "{{ card.name_on_card or card.card_id }}";
+      var company = "{{ card.company or '' }}";
+      var designation = "{{ card.designation or '' }}";
+      var email = "{{ card.email or '' }}";
+      var phone = "{{ card.phone or '' }}";
+      var lines = [
+        "BEGIN:VCARD",
+        "VERSION:3.0",
+        "FN:" + company,
+        name ? "ORG:" + name : "",
+        designation ? "TITLE:" + designation : "",
+        email ? "EMAIL;TYPE=INTERNET:" + email : "",
+        phone ? "TEL;TYPE=CELL:" + phone : "",
+        "END:VCARD"
+      ];
+      return lines.filter(Boolean).join('\n');
     }
-    let color = '#';
-    for (let i = 0; i < 3; i++) {
-      const value = (hash >> (i * 8)) & 0xFF;
-      color += ('00' + value.toString(16)).substr(-2);
+    function drawQRCode() {
+      var vcard = generateVCard();
+      var qrDiv = document.getElementById('qr-code-canvas');
+      qrDiv.innerHTML = "";
+      var qr = new QRCode(qrDiv, {
+        text: vcard,
+        width: 150,
+        height: 150,
+        colorDark: "#23272f",
+        colorLight: "#fff",
+        correctLevel: QRCode.CorrectLevel.Q
+      });
     }
-    return color;
-  }
-  function getInitials(name) {
-    if (!name) return '?';
-    const parts = name.trim().split(' ');
-    if (parts.length === 1) return parts[0][0].toUpperCase();
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-  }
-  (function () {
-    const fallback = document.getElementById('avatar-fallback');
-    if (fallback) {
-      const name = fallback.dataset.name || '';
-      const initials = getInitials(name);
-      const bgColor = stringToColor(name + 'avatar');
-      fallback.innerHTML = `
-      <svg viewBox="0 0 110 110" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="${bgColor}"/>
-            <stop offset="100%" stop-color="#4078ff"/>
-          </linearGradient>
-        </defs>
-        <circle cx="55" cy="55" r="53" fill="url(#g)"/>
-        <text x="50%" y="57%" text-anchor="middle" fill="#fff" font-size="46" style="font-family:'Inter',Arial,sans-serif;font-weight:800;dominant-baseline:middle;" dy=".1em">${initials}</text>
-      </svg>`;
+    window.saveQrImage = function() {
+      var qrDiv = document.getElementById('qr-code-canvas');
+      var img = qrDiv.querySelector('img') || qrDiv.querySelector('canvas');
+      if (!img) return;
+      var link = document.createElement('a');
+      link.download = "digital-card-qr.png";
+      link.href = img.src || img.toDataURL("image/png");
+      link.click();
+    };
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", drawQRCode);
+    } else {
+      drawQRCode();
     }
-  })();
-
-  // --- vCard generation ---
-  window.onload = function () {
-    const name = "{{ card.name_on_card or card.card_id }}";
-    const company = "{{ card.company or '' }}";
-    const designation = "{{ card.designation or '' }}";
-    const email = "{{ card.email or '' }}";
-    const phone = "{{ card.phone or '' }}";
-    const image = "{{ card.image or '' }}";
-
-    const vcard = `
-BEGIN:VCARD
-VERSION:3.0
-FN:${name}
-ORG:${company}
-TITLE:${designation}
-EMAIL:${email}
-TEL:${phone}
-${image ? `PHOTO;VALUE=URI:${image}` : ''}
-END:VCARD
-`.trim();
-    const encodedVcard = encodeURIComponent(vcard);
-    const vcardLink = document.querySelector("#vcard-link");
-    vcardLink.href = `data:text/vcard;charset=utf-8,${encodedVcard}`;
-    vcardLink.download = name.replace(/\s+/g, "_") + ".vcf";
-  };
-
-  // Copy to clipboard with toast
-  function showToast(msg) {
-    const toast = document.getElementById('toast');
-    toast.textContent = msg;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 1600);
-  }
-  document.querySelectorAll('.copy-btn').forEach(btn => {
-    btn.addEventListener('click', function () {
-      const val = this.getAttribute('data-copy');
-      navigator.clipboard.writeText(val).then(() => {
-        showToast('Copied!');
+    // Avatar fallback as SVG with animated gradient
+    function stringToColor(str) {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      let color = '#';
+      for (let i = 0; i < 3; i++) {
+        const value = (hash >> (i * 8)) & 0xFF;
+        color += ('00' + value.toString(16)).substr(-2);
+      }
+      return color;
+    }
+    function getInitials(name) {
+      if (!name) return '?';
+      const parts = name.trim().split(' ');
+      if (parts.length === 1) return parts[0][0].toUpperCase();
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    (function () {
+      const fallback = document.getElementById('avatar-fallback');
+      if (fallback) {
+        const name = fallback.dataset.name || '';
+        const initials = getInitials(name);
+        const bgColor = stringToColor(name + 'avatar');
+        fallback.innerHTML = `
+        <svg viewBox="0 0 110 110" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="${bgColor}">
+                <animate attributeName="stop-color" values="${bgColor};#6db4ff;${bgColor}" dur="4s" repeatCount="indefinite" />
+              </stop>
+              <stop offset="100%" stop-color="#6db4ff">
+                <animate attributeName="stop-color" values="#6db4ff;${bgColor};#6db4ff" dur="4s" repeatCount="indefinite" />
+              </stop>
+            </linearGradient>
+          </defs>
+          <circle cx="55" cy="55" r="53" fill="url(#g)"/>
+          <text x="50%" y="57%" text-anchor="middle" fill="#fff" font-size="46" style="font-family:'Inter',Arial,sans-serif;font-weight:800;dominant-baseline:middle;" dy=".1em">${initials}</text>
+        </svg>`;
+      }
+    })();
+    // Copy to clipboard with animated toast
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1700);
+    }
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', function () {
+        const val = this.getAttribute('data-copy');
+        navigator.clipboard.writeText(val).then(() => {
+          showToast('Copied!');
+        });
       });
     });
-  });
-
-  // --- Store user geolocation for lead form ---
-  let userLatitude = null;
-  let userLongitude = null;
-
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      function(pos) {
-        userLatitude = pos.coords.latitude;
-        userLongitude = pos.coords.longitude;
-      }
-    );
-  }
-
-  // --- Lead form logic ---
-  document.querySelector('#open-lead-form').onclick = () => {
-    document.querySelector('#lead-form').style.display = 'block';
-    document.querySelector('#lead-msg').innerText = '';
-    document.querySelector('#open-lead-form').style.display = 'none';
-    setTimeout(() => {
-      document.querySelector("#lead_name").focus();
-    }, 210);
-  };
-  document.querySelector("#lead-form").onsubmit = function () {
-    const name = document.querySelector("#lead_name").value.trim();
-    const email = document.querySelector("#lead_email").value.trim();
-    const phone = document.querySelector("#lead_phone").value.trim();
-    const company = document.querySelector("#lead_company").value.trim();
-    const errorElem = document.querySelector("#lead-error");
-    const successMsgElem = document.querySelector("#lead-msg");
-    errorElem.innerText = "";
-    successMsgElem.innerText = "";
-    if (!name || !email || !phone) {
-      errorElem.innerText = "Please fill out all required fields.";
-      return false;
+    // vCard download
+    window.onload = function () {
+      const name = "{{ card.name_on_card or card.card_id }}";
+      const company = "{{ card.company or '' }}";
+      const designation = "{{ card.designation or '' }}";
+      const email = "{{ card.email or '' }}";
+      const phone = "{{ card.phone or '' }}";
+      const image = "{{ card.image or '' }}";
+      const vcard = `
+        BEGIN:VCARD
+        VERSION:3.0
+        FN:${name}
+        ORG:${name}
+        TITLE:${designation}
+        EMAIL:${email}
+        TEL:${phone}
+        ${image ? `PHOTO;VALUE=URI:${image}` : ''}
+        END:VCARD
+        `.trim();
+      const encodedVcard = encodeURIComponent(vcard);
+      const vcardLink = document.querySelector("#vcard-link");
+      vcardLink.href = `data:text/vcard;charset=utf-8,${encodedVcard}`;
+      vcardLink.download = name.replace(/\s+/g, "_") + ".vcf";
+    };
+    // Lead form logic
+    let userLatitude = null;
+    let userLongitude = null;
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        function(pos) {
+          userLatitude = pos.coords.latitude;
+          userLongitude = pos.coords.longitude;
+        }
+      );
     }
-    fetch("/api/method/nfc_card_integration.api.create_nfc_card_lead_and_email", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Frappe-CSRF-Token": window.csrf_token || "",
-      },
-      body: JSON.stringify({
-        card_id: "{{ card.card_id }}",
-        customer_name: name,
-        customer_email: email,
-        customer_phone: phone,
-        customer_company: company,
-        latitude: userLatitude,
-        longitude: userLongitude
-      }),
-    })
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.message && data.message.message === "ok") {
-        successMsgElem.innerText = "✅ Your contact details have been sent!";
-        document.querySelector("#lead-form").reset();
-        document.querySelector("#lead-form").style.display = "none";
-        document.querySelector("#open-lead-form").style.display = "block";
-      } else {
-        errorElem.innerText = `❌ Failed to send contact: ${data.error || "Unknown error"}`;
+    document.querySelector('#open-lead-form').onclick = () => {
+      document.querySelector('#lead-form').style.display = 'block';
+      document.querySelector('#lead-msg').innerText = '';
+      document.querySelector('#open-lead-form').style.display = 'none';
+      setTimeout(() => {
+        document.querySelector("#lead_name").focus();
+      }, 210);
+    };
+    document.querySelector("#lead-form").onsubmit = function () {
+      const name = document.querySelector("#lead_name").value.trim();
+      const email = document.querySelector("#lead_email").value.trim();
+      const phone = document.querySelector("#lead_phone").value.trim();
+      const company = document.querySelector("#lead_company").value.trim();
+      const errorElem = document.querySelector("#lead-error");
+      const successMsgElem = document.querySelector("#lead-msg");
+      errorElem.innerText = "";
+      successMsgElem.innerText = "";
+      if (!name || !email || !phone) {
+        errorElem.innerText = "Please fill out all required fields.";
+        return false;
       }
-    })
-    .catch(() => {
-      errorElem.innerText = "❌ Unable to send contact. Please try again later.";
-    });
-    return false;
-  };
-
-  // --- Scan event logging ---
-  (function () {
-    const cardId = "{{ card.card_id }}";
-    if (!cardId) return;
-    function sendScan(lat = null, lng = null) {
-      fetch("/api/method/nfc_card_integration.api.insert_nfc_card_scan", {
+      fetch("/api/method/nfc_card_integration.api.create_nfc_card_lead_and_email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "X-Frappe-CSRF-Token": window.csrf_token || "",
         },
         body: JSON.stringify({
-          card_id: cardId,
-          latitude: lat,
-          longitude: lng,
+          card_id: "{{ card.card_id }}",
+          customer_name: name,
+          customer_email: email,
+          customer_phone: phone,
+          customer_company: company,
+          latitude: userLatitude,
+          longitude: userLongitude
         }),
+      })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.message && data.message.message === "ok") {
+          successMsgElem.innerText = "✅ Your contact details have been sent!";
+          document.querySelector("#lead-form").reset();
+          document.querySelector("#lead-form").style.display = "none";
+          document.querySelector("#open-lead-form").style.display = "block";
+        } else {
+          errorElem.innerText = `❌ Failed to send contact: ${data.error || "Unknown error"}`;
+        }
+      })
+      .catch(() => {
+        errorElem.innerText = "❌ Unable to send contact. Please try again later.";
       });
-    }
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => sendScan(position.coords.latitude, position.coords.longitude),
-        () => sendScan()
-      );
-    } else {
-      sendScan();
-    }
-  })();
-</script>
-  {% endif %}
+      return false;
+    };
+    // Scan event logging
+    (function () {
+      const cardId = "{{ card.card_id }}";
+      if (!cardId) return;
+      function sendScan(lat = null, lng = null) {
+        fetch("/api/method/nfc_card_integration.api.insert_nfc_card_scan", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Frappe-CSRF-Token": window.csrf_token || "",
+          },
+          body: JSON.stringify({
+            card_id: cardId,
+            latitude: lat,
+            longitude: lng,
+          }),
+        });
+      }
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => sendScan(position.coords.latitude, position.coords.longitude),
+          () => sendScan()
+        );
+      } else {
+        sendScan();
+      }
+    })();
+  </script>
+{% endif %}
 </body>
 </html>
