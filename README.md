@@ -63,15 +63,6 @@ A secure and modern **digital business card system** built on Frappe/ERPNext. Th
 ## 🛠️ Usage
 
 1. **Create a new NFC Card**  
-   Create an entry in the NFC Card DocType with fields like:
-   - `card_id`
-   - `name_on_card`
-   - `email`
-   - `phone`
-   - `company`
-   - `designation`
-   - `image`
-   - (any other custom fields)
 
 2. **Generate a unique NFC card URL**:
 
@@ -116,9 +107,6 @@ nfc_card_integration/
 ---
 
 ## 💡 Developer Notes
-
-- **Fernet Key Persistence:**  
-  You must use the same key to decrypt URLs; regenerating it will break existing links.
 
 - **API Endpoint:**  
   Create the following method to process leads submitted from the NFC card form:
