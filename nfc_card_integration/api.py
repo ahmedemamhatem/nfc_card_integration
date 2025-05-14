@@ -7,7 +7,6 @@ import base64
 def create_nfc_card_from_employee(employee):
     emp = frappe.get_doc("Employee", employee)
 
-    # Generate a unique hash for card_id instead of using the employee's name or attendance_device_id
     card_id = frappe.generate_hash(length=20).lower()
 
     card_url = f"{frappe.utils.get_url()}/card/{card_id}"
@@ -22,14 +21,12 @@ def create_nfc_card_from_employee(employee):
             pass
 
     values = {
-        "card_id": card_id,
         "name_on_card": emp.employee_name,
         "designation": emp.designation,
         "company": emp.company,
         "email": emp.company_email or emp.personal_email,
         "phone": emp.cell_number,
         "image": image,
-        "card_url": card_url,
     }
 
     existing_name = frappe.db.exists("NFC Card", {"employee": emp.name})
@@ -44,6 +41,8 @@ def create_nfc_card_from_employee(employee):
         card = frappe.get_doc({
             "doctype": "NFC Card",
             "employee": emp.name,
+            "card_id": card_id,
+            "card_url": card_url,
             **values
         })
         card.insert(ignore_permissions=True)
@@ -56,17 +55,20 @@ def create_nfc_card_lead_and_email(
     customer_name=None,
     customer_email=None,
     customer_phone=None,
-    customer_company=None
+    customer_company=None,
+    latitude=None,
+    longitude=None
 ):
-    frappe.logger().info(f"Received: card_id={card_id}, name={customer_name}, email={customer_email}, phone={customer_phone}, company={customer_company}")
     if not (card_id and customer_name and customer_email and customer_phone):
-        return {"error": f"Received: card_id={card_id}, name={customer_name}, email={customer_email}, phone={customer_phone}, company={customer_company}"}
+        return {
+            "error": f"Received: card_id={card_id}, name={customer_name}, email={customer_email}, phone={customer_phone}, company={customer_company}, latitude={latitude}, longitude={longitude}"
+        }
 
     # Get NFC Card
     card = frappe.get_doc("NFC Card", {"card_id": card_id})
     employee = card.employee
 
-    # Insert Lead
+    # Insert Lead with latitude/longitude
     lead = frappe.get_doc({
         "doctype": "NFC Card Lead",
         "employee": employee,
@@ -74,6 +76,8 @@ def create_nfc_card_lead_and_email(
         "customer_email": customer_email,
         "customer_phone": customer_phone,
         "customer_company": customer_company,
+        "latitude": latitude,
+        "longitude": longitude,
         "sent_email": 0
     })
     lead.insert(ignore_permissions=True)
@@ -89,13 +93,13 @@ def create_nfc_card_lead_and_email(
 
         # Build vCard and encode as base64 for attachment
         vcard = f"""BEGIN:VCARD
-        VERSION:3.0
-        FN:{customer_name}
-        ORG:{customer_company}
-        EMAIL:{customer_email}
-        TEL:{customer_phone}
-        END:VCARD
-        """
+            VERSION:3.0
+            FN:{customer_name}
+            ORG:{customer_company}
+            EMAIL:{customer_email}
+            TEL:{customer_phone}
+            END:VCARD
+            """
         vcard_bytes = vcard.encode('utf-8')
         vcard_b64 = base64.b64encode(vcard_bytes).decode('ascii')
         data_url = f"data:text/vcard;base64,{vcard_b64}"
@@ -109,13 +113,21 @@ def create_nfc_card_lead_and_email(
                 <li><b>Email:</b> {customer_email}</li>
                 <li><b>Phone:</b> {customer_phone}</li>
                 <li><b>Company:</b> {customer_company}</li>
+        """
+        # Only show if both present
+        if latitude and longitude:
+            html += f'<li><b>Location:</b> <a href="https://maps.google.com/?q={latitude},{longitude}" target="_blank">{latitude}, {longitude}</a></li>'
+        html += """
             </ul>
             <p>
-              <a href="{data_url}" download="{customer_name.replace(' ', '_')}.vcf"
+              <a href="{data_url}" download="{customer_name}.vcf"
                  style="background:#0097e6;color:#fff;border-radius:5px;padding:0.5em 1em;text-decoration:none;"
               >Add to Phonebook</a>
             </p>
-        """
+        """.format(
+            data_url=data_url,
+            customer_name=customer_name.replace(' ', '_')
+        )
 
         # Send email
         frappe.sendmail(
@@ -126,36 +138,37 @@ def create_nfc_card_lead_and_email(
 
         # Mark lead as emailed
         lead.db_set("sent_email", 1)
+        return {"message": "ok"}
     except Exception as e:
-        # Log the error but don't fail
         frappe.logger().error(f"Could not send email for lead: {lead.name}, error: {e}")
-        # Optionally, you can set a field or status on the lead to indicate email was not sent
 
     return {"message": "ok"}
 
 
-
 @frappe.whitelist(allow_guest=True)
-def insert_nfc_card_scan(card_id, latitude, longitude):
+def insert_nfc_card_scan(card_id, latitude=None, longitude=None):
     try:
+        if not card_id:
+            return {"message": "ok"}
+
         # Generate a unique name for the scan record
         scan_name = frappe.generate_hash(length=20)
 
         # Create and insert the new NFC Card Scan document
         doc = frappe.get_doc({
             "doctype": "NFC Card Scan",
-            "name": scan_name, 
+            "name": scan_name,
             "nfc_card": card_id,
             "scan_time": frappe.utils.now_datetime(),
             "latitude": latitude,
             "longitude": longitude
         })
 
-        doc.insert(ignore_permissions=True)  # Use ignore_permissions if needed for API or background job
-        frappe.db.commit()  # Optional: usually handled by insert(), but can ensure it in some setups
+        doc.insert(ignore_permissions=True)
+        frappe.db.commit()
 
-        return {"status": "success", "scan_name": scan_name}
+        return {"message": "ok"}
 
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), "NFC Card Scan Insert Error")
-        return {"status": "error", "message": str(e)}
+        return {"message": "ok"}

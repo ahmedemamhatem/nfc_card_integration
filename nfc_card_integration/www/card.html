@@ -4,129 +4,223 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ card.name_on_card or card.card_id }} – Digital Business Card</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
+    html, body { height: 100%; }
     body {
       font-family: 'Inter', Arial, sans-serif;
-      background: linear-gradient(135deg, #dcdde1, #f5f6fa);
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      background: linear-gradient(132deg, #e3f0ff 0%, #fafcff 100%);
+      margin: 0; padding: 0;
       min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
     }
-
     .card-container {
-      max-width: 400px;
-      background: linear-gradient(145deg, #ffffff, #f0f0f0);
-      border-radius: 15px;
-      box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.2), -8px -8px 16px rgba(255, 255, 255, 0.8);
-      padding: 2em;
-      text-align: center;
+      width: 100%; max-width: 430px;
+      background: rgba(255,255,255,0.98);
+      border-radius: 24px;
+      box-shadow: 0 8px 32px 0 rgba(44, 62, 80, 0.14), 0 2px 8px 0 rgba(0,0,0,0.08);
+      padding: 2.2em 1.7em 2em 1.7em;
+      text-align: center; 
+      backdrop-filter: blur(5px);
+      border: 1.5px solid #e3eaf0;
+      position: relative;
+      animation: fadeInCard 0.7s cubic-bezier(.43,.07,.54,1.08);
+      overflow: hidden;
     }
-
-    .avatar {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
+    @keyframes fadeInCard {
+      from { opacity: 0; transform: translateY(40px) scale(0.97);}
+      to { opacity: 1; transform: none;}
+    }
+    .avatar-wrapper {
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1.2em;
+    }
+    .avatar, .avatar-fallback {
+      width: 95px; height: 95px; border-radius: 50%;
       object-fit: cover;
-      border: 4px solid #0097e6;
-      box-shadow: 0 0 15px rgba(0, 151, 230, 0.5);
-      margin-bottom: 1.5em;
+      border: 3px solid #4078ff;
+      background: #f3fafd;
+      box-shadow: 0 0 0 3px #e6f3ff, 0 2px 12px rgba(40, 110, 215, 0.10);
+      margin: 0 auto;
     }
-
-    h1 {
-      margin: 0.3em 0 0.1em;
-      font-size: 1.8rem;
-      color: #333;
-      font-weight: bold;
+    .avatar-fallback {
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.4em; font-weight: 800;
+      color: #fff; letter-spacing: 1px; user-select: none;
+      overflow: hidden;
+      transition: background 0.3s;
     }
-
-    .role {
-      color: #555;
-      font-size: 1.2rem;
-      margin-bottom: 1em;
+    .avatar-fallback svg {
+      width: 100%; height: 100%; display: block;
     }
-
+    .company-block {
+      margin-bottom: 0.6em;
+    }
+    .company-block .company {
+      font-size: 1.17rem;
+      font-weight: 700;
+      color: #4078ff;
+      letter-spacing: 0.01em;
+      margin-bottom: 0.2em;
+    }
+    .person-block .name {
+      margin: 0.12em 0 0 0;
+      font-size: 2.05rem;
+      font-weight: 800;
+      color: #1a3552;
+      letter-spacing: 0.01em;
+      line-height: 1.13;
+      word-break: break-word;
+    }
+    .person-block .designation {
+      margin: 0.3em 0 0 0;
+      font-size: 1.11rem;
+      font-weight: 600;
+      color: #233a61;
+      letter-spacing: 0.01em;
+    }
     .info {
-      margin: 1em 0;
-      color: #444;
+      margin: 1.3em 0 1.4em;
+      color: #455;
+      text-align: left;
+      border-radius: 13px;
+      font-size: 1.08em;
+      padding: 0.8em 0.2em 0.7em 0.2em;
+      background: linear-gradient(90deg, #f8fbff 80%, #f7faff 100%);
+      border: 1px solid #e6edf6;
+      box-shadow: 0 1.5px 7px rgba(44, 130, 201, 0.06);
     }
-
     .info div {
-      margin: 0.5em 0;
-      font-size: 1rem;
+      margin: 0.38em 0; font-size: 1.07rem; word-break: break-word;
+      display: flex; align-items: center; gap: 0.5em;
+      padding-left: 3px;
+      position: relative;
     }
-
+    .info strong { color: #1a3552; font-weight: 600; margin-right: 0.1em; }
+    .info .copy-btn {
+      background: none; border: none; color: #4078ff; cursor: pointer; 
+      font-size: 1em; margin-left: 0.16em; padding: 0;
+      display: inline-flex; align-items: center; transition: color 0.2s;
+    }
+    .info .copy-btn:focus, .info .copy-btn:hover {
+      color: #233a61;
+    }
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85em;
+      margin: 2.1em 0 0.2em 0;
+      align-items: stretch;
+      width: 100%;
+      max-width: 330px;
+      margin-left: auto;
+      margin-right: auto;
+    }
     .btn {
-      background: #0097e6;
+      background: linear-gradient(90deg, #4078ff 70%, #53d3ec 120%);
       color: #fff;
       border: none;
-      padding: 0.9em 1.5em;
-      border-radius: 8px;
-      font-size: 1rem;
+      padding: 1em 1.2em;
+      border-radius: 12px;
+      font-size: 1.17rem;
+      font-weight: 700;
       cursor: pointer;
       text-decoration: none;
-      display: inline-block;
-      transition: all 0.3s ease;
-      margin: 0.5em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 24px rgba(43, 128, 255, 0.17), 0 1.5px 5px rgba(0,0,0,0.07);
+      outline: none;
+      transition: all 0.21s cubic-bezier(.4,.09,.51,.93);
+      letter-spacing: .015em;
+      position: relative;
+      min-height: 52px;
+      min-width: 140px;
+      font-family: inherit;
+      gap: 0.7em;
     }
-
-    .btn:hover {
-      background: #005c99;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    .btn:focus, .btn:hover {
+      background: linear-gradient(90deg, #233a61 80%, #4078ff 120%);
+      color: #fff;
+      transform: translateY(-2px) scale(1.045);
+      box-shadow: 0 8px 22px rgba(43,128,255,0.23);
     }
-
+    .btn-secondary {
+      background: linear-gradient(92deg, #f7faff 60%, #eaf6fb 120%);
+      color: #4078ff;
+      border: 1.8px solid #4078ff;
+      box-shadow: none;
+      font-weight: 700;
+      transition: border-color 0.22s, color 0.22s, background 0.22s;
+    }
+    .btn-secondary:focus, .btn-secondary:hover {
+      color: #233a61;
+      border-color: #233a61;
+      background: linear-gradient(92deg, #eef5ff 60%, #cbe4f7 120%);
+      transform: translateY(-2px) scale(1.045);
+    }
     .msg {
-      margin: 1em 0;
-      font-size: 1rem;
-      color: #27ae60;
+      margin: 0.7em 0 0.3em; font-size: 1.04rem;
+      color: #27ae60; font-weight: 600; min-height: 1.15em; text-align: center;
     }
-
     .lead-form {
-      text-align: left;
-      margin-top: 1.5em;
-      background: #f0f4f8;
-      border-radius: 12px;
-      padding: 1em 1.5em;
-      display: none;
-      animation: fadeIn 0.5s ease-in-out;
+      text-align: left; margin-top: 1.2em;
+      background: #f7faff; border-radius: 15px;
+      padding: 1.15em 1.25em 1.25em 1.25em; display: none;
+      animation: fadeIn 0.47s cubic-bezier(.39,.07,.58,1.12);
+      border: 1.5px solid #e2e9ef; 
+      box-shadow: 0 2px 10px rgba(43, 128, 255, 0.07);
     }
-
     @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from { opacity: 0; transform: scale(0.96);}
+      to { opacity: 1; transform: scale(1);}
     }
-
     .lead-form input {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #d0d2d6;
-      border-radius: 6px;
-      margin-bottom: 1em;
-      font-size: 1em;
+      width: 100%; padding: 11px; border: 1.2px solid #cbe4f7;
+      border-radius: 7px; margin-bottom: 1em;
+      font-size: 1.03em; background: #fff; transition: border 0.2s; font-family: inherit;
     }
-
+    .lead-form input:focus { border: 1.5px solid #4078ff; outline: none; }
     .lead-form label {
-      margin-bottom: 0.5em;
-      font-size: 1em;
-      display: block;
+      margin-bottom: 0.35em; font-size: 1em; font-weight: 600;
+      color: #3973b7; display: block;
     }
-
     .lead-form .btn {
-      width: 100%;
+      width: 100%; margin-top: 0.22em;
     }
-
     .error {
       color: #e74c3c;
-      font-size: 0.9em;
+      font-size: 0.98em; margin-top: 0.6em; font-weight: 600;
     }
-
-    #location-msg {
-      color: #e67e22;
-      font-size: 1em;
-      margin-top: 1em;
+    .toast {
+      position: fixed; left: 50%; bottom: 2.2em;
+      background: #23272f; color: #fafcff;
+      padding: 0.62em 1.55em; border-radius: 24px;
+      font-size: 1.05em; font-weight: 600;
+      transform: translateX(-50%) scale(0.97);
+      opacity: 0; pointer-events: none; 
+      z-index: 1000;
+      box-shadow: 0 4px 20px rgba(44,62,80,0.12);
+      transition: opacity 0.25s, transform 0.28s;
+    }
+    .toast.show {
+      opacity: 1; transform: translateX(-50%) scale(1.03);
+      pointer-events: auto;
+    }
+    @media (max-width: 540px) {
+      .card-container { padding: 1.1em 0.1em 1.1em 0.1em; max-width: 99vw;}
+      .avatar, .avatar-fallback { width: 70px; height: 70px; font-size: 2em;}
+      .person-block .name { font-size: 1.27rem;}
+      .person-block .designation { font-size: 1em;}
+      .company-block .company { font-size: 1.05em;}
+      .btn, .btn-secondary { font-size: 1em; min-width: 100px;}
+      .lead-form { padding: 1em 0.6em 1.1em 0.6em;}
+      .action-buttons { max-width: 98vw; }
+    }
+    .btn:focus-visible, .btn-secondary:focus-visible, .copy-btn:focus-visible {
+      outline: 2.5px solid #4078ff;
+      outline-offset: 2px;
     }
   </style>
 </head>
@@ -137,172 +231,253 @@
       <p>The card you are looking for does not exist.</p>
     </div>
   {% else %}
-    <div class="card-container">
-      <img src="{{ card.image }}" alt="{{ card.name_on_card or card.card_id }}" class="avatar">
-      <h1>{{ card.name_on_card or card.card_id }}</h1>
-      <div class="role">{{ card.designation or 'No Designation Provided' }}</div>
-      <div class="info">
-        {% if card.email %}<div>📧 <strong>Email:</strong> {{ card.email }}</div>{% endif %}
-        {% if card.phone %}<div>📱 <strong>Phone:</strong> {{ card.phone }}</div>{% endif %}
-        {% if card.company %}<div>🏢 <strong>Company:</strong> {{ card.company }}</div>{% endif %}
+    <div class="card-container" aria-label="Business Card for {{ card.name_on_card or card.card_id }}">
+      <div class="avatar-wrapper">
+        {% if card.image %}
+          <img src="{{ card.image }}" alt="{{ card.name_on_card or card.card_id }}" class="avatar" id="user-avatar">
+        {% else %}
+          <span class="avatar-fallback" id="avatar-fallback" data-name="{{ card.name_on_card or card.card_id }}"></span>
+        {% endif %}
       </div>
-      <a id="vcard-link" href="#" class="btn" download="">Add to Contacts</a>
-      <button class="btn" id="open-lead-form">Send My Contact to This Company</button>
-      <div id="lead-msg" class="msg"></div>
+      <div class="company-block">
+        {% if card.company %}
+          <div class="company">{{ card.company }}</div>
+        {% endif %}
+      </div>
+      <div class="person-block">
+        <div class="name">{{ card.name_on_card or card.card_id }}</div>
+        {% if card.designation %}
+          <div class="designation">{{ card.designation }}</div>
+        {% endif %}
+      </div>
+      <div class="info" aria-label="Contact Info">
+        {% if card.email %}
+          <div>
+            <span aria-label="Email" title="Email">📧</span> 
+            <strong>Email:</strong>
+            <a href="mailto:{{ card.email }}" style="color:#4078ff;text-decoration:none;" tabindex="0">{{ card.email }}</a>
+            <button class="copy-btn" type="button" aria-label="Copy Email" data-copy="{{ card.email }}">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 20 20"><rect x="5" y="7" width="11" height="10" rx="2"/><path d="M9 5V4a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"/></svg>
+            </button>
+          </div>
+        {% endif %}
+        {% if card.phone %}
+          <div>
+            <span aria-label="Phone" title="Phone">📱</span>
+            <strong>Phone:</strong>
+            <a href="tel:{{ card.phone }}" style="color:#4078ff;text-decoration:none;" tabindex="0">{{ card.phone }}</a>
+            <button class="copy-btn" type="button" aria-label="Copy Phone" data-copy="{{ card.phone }}">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 20 20"><rect x="5" y="7" width="11" height="10" rx="2"/><path d="M9 5V4a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"/></svg>
+            </button>
+          </div>
+        {% endif %}
+        {% if card.company and not card.designation %}
+          <div>🏢 <strong>Company:</strong> {{ card.company }}</div>
+        {% endif %}
+      </div>
+      <div id="lead-msg" class="msg" aria-live="polite"></div>
       <form id="lead-form" class="lead-form" autocomplete="on" onsubmit="return false;">
         <label for="lead_name">Your Name*</label>
-        <input type="text" id="lead_name" required>
+        <input type="text" id="lead_name" required autocomplete="name">
         <label for="lead_email">Email*</label>
-        <input type="email" id="lead_email" required>
+        <input type="email" id="lead_email" required autocomplete="email">
         <label for="lead_phone">Phone*</label>
-        <input type="tel" id="lead_phone" required>
+        <input type="tel" id="lead_phone" required autocomplete="tel">
         <label for="lead_company">Company</label>
-        <input type="text" id="lead_company">
-        <button type="submit" class="btn">Send Contact</button>
+        <input type="text" id="lead_company" autocomplete="organization">
+        <button type="submit" class="btn">Send My Details</button>
         <div id="lead-error" class="error"></div>
       </form>
-      <div id="location-msg"></div>
+      <div class="action-buttons">
+        <a id="vcard-link" href="#" class="btn" download="" tabindex="0" aria-label="Save Contact Card">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;" viewBox="0 0 24 24"><path d="M12 16v-8"/><path d="M8 12l4 4 4-4"/><rect x="4" y="18" width="16" height="2" rx="1"/></svg>
+          <span>Save to Phone</span>
+        </a>
+        <button class="btn btn-secondary" id="open-lead-form" type="button">
+          <svg width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:3px;" viewBox="0 0 24 24"><path d="M21 10v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span>Share My Contact</span>
+        </button>
+      </div>
     </div>
-
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <script>
-      // Generate vCard and set download link
-      window.onload = function () {
-        const name = "{{ card.name_on_card or card.card_id }}";
-        const company = "{{ card.company or '' }}";
-        const designation = "{{ card.designation or '' }}";
-        const email = "{{ card.email or '' }}";
-        const phone = "{{ card.phone or '' }}";
-        const image = "{{ card.image or '' }}";
+  // --- Avatar fallback as SVG ---
+  function stringToColor(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    let color = '#';
+    for (let i = 0; i < 3; i++) {
+      const value = (hash >> (i * 8)) & 0xFF;
+      color += ('00' + value.toString(16)).substr(-2);
+    }
+    return color;
+  }
+  function getInitials(name) {
+    if (!name) return '?';
+    const parts = name.trim().split(' ');
+    if (parts.length === 1) return parts[0][0].toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+  (function () {
+    const fallback = document.getElementById('avatar-fallback');
+    if (fallback) {
+      const name = fallback.dataset.name || '';
+      const initials = getInitials(name);
+      const bgColor = stringToColor(name + 'avatar');
+      fallback.innerHTML = `
+      <svg viewBox="0 0 110 110" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="${bgColor}"/>
+            <stop offset="100%" stop-color="#4078ff"/>
+          </linearGradient>
+        </defs>
+        <circle cx="55" cy="55" r="53" fill="url(#g)"/>
+        <text x="50%" y="57%" text-anchor="middle" fill="#fff" font-size="46" style="font-family:'Inter',Arial,sans-serif;font-weight:800;dominant-baseline:middle;" dy=".1em">${initials}</text>
+      </svg>`;
+    }
+  })();
 
-        const vcard = `
-          BEGIN:VCARD
-          VERSION:3.0
-          FN:${name}
-          ORG:${company}
-          TITLE:${designation}
-          EMAIL:${email}
-          TEL:${phone}
-          ${image ? `PHOTO;VALUE=URI:${image}` : ''}
-          END:VCARD
-        `;
-        const encodedVcard = encodeURIComponent(vcard);
-        const vcardLink = document.querySelector("#vcard-link");
-        vcardLink.href = `data:text/vcard;charset=utf-8,${encodedVcard}`;
-        vcardLink.download = name.replace(/\s+/g, "_") + ".vcf";
-      };
+  // --- vCard generation ---
+  window.onload = function () {
+    const name = "{{ card.name_on_card or card.card_id }}";
+    const company = "{{ card.company or '' }}";
+    const designation = "{{ card.designation or '' }}";
+    const email = "{{ card.email or '' }}";
+    const phone = "{{ card.phone or '' }}";
+    const image = "{{ card.image or '' }}";
 
-      // Show lead form on button click
-      document.querySelector('#open-lead-form').onclick = () => {
-        document.querySelector('#lead-form').style.display = 'block';
-        document.querySelector('#lead-msg').innerText = '';
-        document.querySelector('#open-lead-form').style.display = 'none';
-      };
+    const vcard = `
+BEGIN:VCARD
+VERSION:3.0
+FN:${name}
+ORG:${company}
+TITLE:${designation}
+EMAIL:${email}
+TEL:${phone}
+${image ? `PHOTO;VALUE=URI:${image}` : ''}
+END:VCARD
+`.trim();
+    const encodedVcard = encodeURIComponent(vcard);
+    const vcardLink = document.querySelector("#vcard-link");
+    vcardLink.href = `data:text/vcard;charset=utf-8,${encodedVcard}`;
+    vcardLink.download = name.replace(/\s+/g, "_") + ".vcf";
+  };
 
-      // Handle lead form submission
-      document.querySelector("#lead-form").onsubmit = function () {
-        const name = document.querySelector("#lead_name").value.trim();
-        const email = document.querySelector("#lead_email").value.trim();
-        const phone = document.querySelector("#lead_phone").value.trim();
-        const company = document.querySelector("#lead_company").value.trim();
-        const errorElem = document.querySelector("#lead-error");
-        const successMsgElem = document.querySelector("#lead-msg");
+  // Copy to clipboard with toast
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 1600);
+  }
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const val = this.getAttribute('data-copy');
+      navigator.clipboard.writeText(val).then(() => {
+        showToast('Copied!');
+      });
+    });
+  });
 
-        // Clear previous messages
-        errorElem.innerText = "";
-        successMsgElem.innerText = "";
+  // --- Store user geolocation for lead form ---
+  let userLatitude = null;
+  let userLongitude = null;
 
-        // Validate inputs
-        if (!name || !email || !phone) {
-          errorElem.innerText = "Please fill out all required fields.";
-          return false;
-        }
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      function(pos) {
+        userLatitude = pos.coords.latitude;
+        userLongitude = pos.coords.longitude;
+      }
+    );
+  }
 
-        // Make API call
-        fetch("/api/method/nfc_card_integration.api.create_nfc_card_lead_and_email", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Frappe-CSRF-Token": window.csrf_token || "",
-          },
-          body: JSON.stringify({
-            card_id: "{{ card.card_id }}",
-            customer_name: name,
-            customer_email: email,
-            customer_phone: phone,
-            customer_company: company,
-          }),
-        })
-        
-          .then((res) => res.json())
-          .then((data) => {
-            console.log("Sending payload:", {
-              card_id: "{{ card.card_id }}",
-              customer_name: name,
-              customer_email: email,
-              customer_phone: phone,
-              customer_company: company,
-              message: data.message,
-            });
-            if (data.message.message === "ok") {
-              successMsgElem.innerText = "✅ Contact sent successfully!";
-              document.querySelector("#lead-form").reset();
-              document.querySelector("#lead-form").style.display = "none";
-              document.querySelector("#open-lead-form").style.display = "block";
-            } else {
-              errorElem.innerText = `❌ Failed to send contact: ${data.error || "Unknown error"}`;
-            }
-          })
-          .catch(() => {
-            errorElem.innerText = "❌ Unable to send contact. Please try again later.";
-          });
+  // --- Lead form logic ---
+  document.querySelector('#open-lead-form').onclick = () => {
+    document.querySelector('#lead-form').style.display = 'block';
+    document.querySelector('#lead-msg').innerText = '';
+    document.querySelector('#open-lead-form').style.display = 'none';
+    setTimeout(() => {
+      document.querySelector("#lead_name").focus();
+    }, 210);
+  };
+  document.querySelector("#lead-form").onsubmit = function () {
+    const name = document.querySelector("#lead_name").value.trim();
+    const email = document.querySelector("#lead_email").value.trim();
+    const phone = document.querySelector("#lead_phone").value.trim();
+    const company = document.querySelector("#lead_company").value.trim();
+    const errorElem = document.querySelector("#lead-error");
+    const successMsgElem = document.querySelector("#lead-msg");
+    errorElem.innerText = "";
+    successMsgElem.innerText = "";
+    if (!name || !email || !phone) {
+      errorElem.innerText = "Please fill out all required fields.";
+      return false;
+    }
+    fetch("/api/method/nfc_card_integration.api.create_nfc_card_lead_and_email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Frappe-CSRF-Token": window.csrf_token || "",
+      },
+      body: JSON.stringify({
+        card_id: "{{ card.card_id }}",
+        customer_name: name,
+        customer_email: email,
+        customer_phone: phone,
+        customer_company: company,
+        latitude: userLatitude,
+        longitude: userLongitude
+      }),
+    })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.message && data.message.message === "ok") {
+        successMsgElem.innerText = "✅ Your contact details have been sent!";
+        document.querySelector("#lead-form").reset();
+        document.querySelector("#lead-form").style.display = "none";
+        document.querySelector("#open-lead-form").style.display = "block";
+      } else {
+        errorElem.innerText = `❌ Failed to send contact: ${data.error || "Unknown error"}`;
+      }
+    })
+    .catch(() => {
+      errorElem.innerText = "❌ Unable to send contact. Please try again later.";
+    });
+    return false;
+  };
 
-        return false;
-      };
-
-      // Log NFC card scan with geolocation
-      (function () {
-        const cardId = "{{ card.card_id }}";
-        const locationMsg = document.querySelector("#location-msg");
-
-        function sendScan(lat = null, lng = null) {
-          fetch("/api/method/nfc_card_integration.api.insert_nfc_card_scan", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-Frappe-CSRF-Token": window.csrf_token || "",
-            },
-            body: JSON.stringify({
-              card_id: cardId,
-              latitude: lat,
-              longitude: lng,
-            }),
-          })
-            .then((res) => res.json())
-            .then((data) => {
-              if (data.message === "ok") {
-                locationMsg.innerText =
-                  lat && lng
-                    ? "📍 Visit logged with location."
-                    : "✅ Visit logged. No location set.";
-              } else {
-                locationMsg.innerText = "⚠️ Could not log scan.";
-              }
-            })
-            .catch(() => {
-              locationMsg.innerText = "❌ Could not log scan. Please try again.";
-            });
-        }
-
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            (position) => sendScan(position.coords.latitude, position.coords.longitude),
-            () => sendScan()
-          );
-        } else {
-          sendScan();
-        }
-      })();
-    </script>
+  // --- Scan event logging ---
+  (function () {
+    const cardId = "{{ card.card_id }}";
+    if (!cardId) return;
+    function sendScan(lat = null, lng = null) {
+      fetch("/api/method/nfc_card_integration.api.insert_nfc_card_scan", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Frappe-CSRF-Token": window.csrf_token || "",
+        },
+        body: JSON.stringify({
+          card_id: cardId,
+          latitude: lat,
+          longitude: lng,
+        }),
+      });
+    }
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => sendScan(position.coords.latitude, position.coords.longitude),
+        () => sendScan()
+      );
+    } else {
+      sendScan();
+    }
+  })();
+</script>
   {% endif %}
 </body>
 </html>
