@@ -1,6 +1,7 @@
 import frappe
 import json
 import base64
+from datetime import timedelta
 
 
 @frappe.whitelist()
@@ -152,7 +153,7 @@ def insert_nfc_card_scan(card_id, latitude=None, longitude=None):
             return {"message": "ok"}
 
         # Define the time window (last 30 minutes)
-        time_threshold = frappe.utils.add_minutes(frappe.utils.now_datetime(), -30)
+        time_threshold = frappe.utils.now_datetime() - timedelta(minutes=30)
 
         # Check if a similar scan already exists
         existing_scan = frappe.db.exists(
