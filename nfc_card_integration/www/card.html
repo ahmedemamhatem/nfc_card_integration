@@ -232,9 +232,18 @@
             customer_company: company,
           }),
         })
+        
           .then((res) => res.json())
           .then((data) => {
-            if (data.message === "ok") {
+            console.log("Sending payload:", {
+              card_id: "{{ card.card_id }}",
+              customer_name: name,
+              customer_email: email,
+              customer_phone: phone,
+              customer_company: company,
+              message: data.message,
+            });
+            if (data.message.message === "ok") {
               successMsgElem.innerText = "✅ Contact sent successfully!";
               document.querySelector("#lead-form").reset();
               document.querySelector("#lead-form").style.display = "none";
