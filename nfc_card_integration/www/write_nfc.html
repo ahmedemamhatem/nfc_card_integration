@@ -123,12 +123,14 @@
       margin-top: 1.3em;
       font-size: 1.12em;
       font-weight: 600;
-      min-height: 1.6em;
+      min-height: 2.5em;
       transition: color 0.2s;
       text-align: center;
+      white-space: pre-line;
     }
     #status.success { color: var(--status-success);}
     #status.error { color: var(--status-error);}
+    #status.progress { color: var(--primary);}
     .hint {
       color: var(--hint); font-size: 0.97em; margin-top: 2em;
     }
@@ -184,38 +186,82 @@
       <button id="writeBtn" class="btn" onclick="writeNFC()">Write to NFC</button>
       <div id="status"></div>
       <div class="hint">
-        Works best on Android with Chrome 89+.
-        <br>(iPhone does not support Web NFC for writing.)
+        Works best on Android with Chrome 89+.<br>
+        (iPhone does not support Web NFC for writing.)
       </div>
     </div>
     <script>
-      function writeNFC() {
+      let scanController = null;
+
+      async function writeNFC() {
         var btn = document.getElementById('writeBtn');
         var status = document.getElementById('status');
         status.innerText = '';
         status.className = '';
         btn.disabled = true;
         const url = "{{ card.card_url }}";
+
         if (!('NDEFReader' in window)) {
           status.innerText = "Web NFC not supported. Use Chrome on Android.";
           status.className = "error";
           btn.disabled = false;
           return;
         }
-        const writer = new NDEFReader();
-        writer.write({
-          records: [
-            { recordType: "url", data: url }
-          ]
-        }).then(() => {
-          status.innerText = "✅ Success! NFC card written. Test by scanning with any phone.";
-          status.className = "success";
-          btn.disabled = false;
-        }).catch(e => {
-          status.innerText = "❌ Failed: " + e;
+
+        // Show waiting progress
+        status.innerText = "🔍 Waiting for NFC card...\n(Hold card near device)";
+        status.className = "progress";
+
+        scanController = new AbortController();
+        const timeoutMs = 15000; // 15 seconds
+        const timeout = setTimeout(() => {
+          scanController.abort();
+          status.innerText = "❌ No NFC card detected.\nPlease try again.";
           status.className = "error";
           btn.disabled = false;
-        });
+        }, timeoutMs);
+
+        const ndef = new NDEFReader();
+
+        ndef.onreadingerror = () => {
+          clearTimeout(timeout);
+          scanController.abort();
+          status.innerText = "❌ Card detected, but not supported (not NDEF compatible).";
+          status.className = "error";
+          btn.disabled = false;
+        };
+
+        ndef.onreading = async (event) => {
+          clearTimeout(timeout);
+          status.innerText = "✅ Card detected and supported.\n✍️ Writing in progress...";
+          status.className = "progress";
+          try {
+            await ndef.write({
+              records: [{ recordType: "url", data: url }]
+            });
+            status.innerText = "✅ Success! NFC card written.\nTest by scanning with any phone.";
+            status.className = "success";
+          } catch (e) {
+            if (e.name === "NetworkError" && String(e).includes("IO error")) {
+              status.innerText = "❌ IO error: Tag may be unsupported, locked, or removed too early.\nTry another card or hold steady.";
+            } else {
+              status.innerText = "❌ Failed: " + e;
+            }
+            status.className = "error";
+          }
+          btn.disabled = false;
+          scanController.abort();
+        };
+
+        try {
+          await ndef.scan({ signal: scanController.signal });
+        } catch (err) {
+          clearTimeout(timeout);
+          if (scanController.signal.aborted) return;
+          status.innerText = "❌ Could not start NFC scan: " + err;
+          status.className = "error";
+          btn.disabled = false;
+        }
       }
     </script>
   {% endif %}
