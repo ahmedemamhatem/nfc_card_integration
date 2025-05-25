@@ -6,9 +6,22 @@
  "engine": "InnoDB",
  "field_order": [
   "nfc_card",
+  "card_id",
+  "scan_date",
+  "longitude",
+  "hamlet",
+  "county",
+  "state",
+  "column_break_okox",
+  "employee",
   "scan_time",
   "latitude",
-  "longitude"
+  "city",
+  "town",
+  "village",
+  "municipality",
+  "section_break_qmpm",
+  "scan_map_html"
  ],
  "fields": [
   {
@@ -36,6 +49,7 @@
    "default": "0",
    "fieldname": "latitude",
    "fieldtype": "Float",
+   "hidden": 1,
    "label": "latitude",
    "read_only": 1
   },
@@ -43,15 +57,104 @@
    "default": "0",
    "fieldname": "longitude",
    "fieldtype": "Float",
+   "hidden": 1,
    "label": "longitude",
+   "read_only": 1
+  },
+  {
+   "fieldname": "scan_map_html",
+   "fieldtype": "HTML",
+   "read_only": 1
+  },
+  {
+   "fieldname": "card_id",
+   "fieldtype": "Data",
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Card ID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_qmpm",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Data",
+   "in_filter": 1,
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Employee",
+   "read_only": 1
+  },
+  {
+   "fieldname": "scan_date",
+   "fieldtype": "Date",
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Scan Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_okox",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "City",
+   "read_only": 1
+  },
+  {
+   "fieldname": "hamlet",
+   "fieldtype": "Data",
+   "label": "hamlet",
+   "read_only": 1
+  },
+  {
+   "fieldname": "county",
+   "fieldtype": "Data",
+   "label": "county",
+   "read_only": 1
+  },
+  {
+   "fieldname": "state",
+   "fieldtype": "Data",
+   "label": "state",
+   "read_only": 1
+  },
+  {
+   "fieldname": "town",
+   "fieldtype": "Data",
+   "label": "town",
+   "read_only": 1
+  },
+  {
+   "fieldname": "village",
+   "fieldtype": "Data",
+   "label": "village",
+   "read_only": 1
+  },
+  {
+   "fieldname": "municipality",
+   "fieldtype": "Data",
+   "label": "municipality",
    "read_only": 1
   }
  ],
- "grid_page_length": 50,
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-05-14 16:00:05.495835",
+ "modified": "2025-05-25 23:39:30.052197",
  "modified_by": "Administrator",
  "module": "Nfc Card Integration",
  "name": "NFC Card Scan",
@@ -70,7 +173,6 @@
    "write": 1
   }
  ],
- "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

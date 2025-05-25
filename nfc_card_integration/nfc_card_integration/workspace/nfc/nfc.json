@@ -1,0 +1,76 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"HWThCS432r\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">NFC</span>\",\"col\":12}},{\"id\":\"qb0zpeklNY\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"iB0RDhqaSW\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee\",\"col\":3}},{\"id\":\"d0iLKZRvaz\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"NFC Card\",\"col\":3}},{\"id\":\"HgUlj1Rj1P\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"NFC Card Lead\",\"col\":3}},{\"id\":\"FpRlvTVj0Y\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"NFC Card Scan\",\"col\":3}},{\"id\":\"tbKIPkacWp\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"5oJT5y7gRH\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"NFC Card Lead Report\",\"col\":3}},{\"id\":\"XZAWrX06JR\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"NFC Card Scan Report\",\"col\":3}}]",
+ "creation": "2025-05-25 18:48:27.600052",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "menu",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "NFC",
+ "links": [],
+ "modified": "2025-05-25 20:25:47.942341",
+ "modified_by": "Administrator",
+ "module": "Nfc Card Integration",
+ "name": "NFC",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 39.0,
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Employee",
+   "link_to": "Employee",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "NFC Card Lead Report",
+   "link_to": "NFC Card Lead Report",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "NFC Card Lead",
+   "link_to": "NFC Card Lead",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "NFC Card Scan Report",
+   "link_to": "NFC Card Scan Report",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "NFC Card",
+   "link_to": "NFC Card",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "NFC Card Scan",
+   "link_to": "NFC Card Scan",
+   "stats_filter": "[]",
+   "type": "DocType"
+  }
+ ],
+ "title": "NFC"
+}

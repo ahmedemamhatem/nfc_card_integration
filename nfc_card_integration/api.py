@@ -4,6 +4,12 @@ import base64
 from datetime import timedelta
 
 
+import frappe
+import json
+from frappe import _
+
+
+
 @frappe.whitelist()
 def create_nfc_card_from_employee(employee):
     emp = frappe.get_doc("Employee", employee)
@@ -57,7 +63,6 @@ def create_nfc_card_from_employee(employee):
         return card.name
 
 
-
 @frappe.whitelist(allow_guest=True)
 def create_nfc_card_lead_and_email(
     card_id=None,
@@ -76,11 +81,13 @@ def create_nfc_card_lead_and_email(
     # Get NFC Card
     card = frappe.get_doc("NFC Card", {"card_id": card_id})
     employee = card.employee
+    nfc_card = card.name
 
     # Insert Lead with latitude/longitude
     lead = frappe.get_doc({
         "doctype": "NFC Card Lead",
         "employee": employee,
+        "nfc_card": nfc_card,
         "customer_name": customer_name,
         "customer_email": customer_email,
         "customer_phone": customer_phone,
@@ -167,11 +174,13 @@ def insert_nfc_card_scan(card_id, latitude=None, longitude=None):
         # Time threshold: 30 minutes ago, no microseconds
         time_threshold = (frappe.utils.now_datetime() - timedelta(minutes=30)).replace(microsecond=0)
         formatted_threshold = time_threshold.strftime("%Y-%m-%d %H:%M:%S")
-
+        nfc_card = frappe.get_doc("NFC Card", {"card_id": card_id})
+        employee = nfc_card.employee
+        nfc_card_name = nfc_card.name
         # Check for existing scan
         existing_scan = frappe.db.sql("""
             SELECT name FROM `tabNFC Card Scan`
-            WHERE nfc_card = %s
+            WHERE card_id = %s
               AND ROUND(latitude, 5) = %s
               AND ROUND(longitude, 5) = %s
               AND scan_time > %s
@@ -187,8 +196,11 @@ def insert_nfc_card_scan(card_id, latitude=None, longitude=None):
         doc = frappe.get_doc({
             "doctype": "NFC Card Scan",
             "name": scan_name,
-            "nfc_card": card_id,
+            "employee": employee,
+            "nfc_card": nfc_card_name,
+            "card_id": card_id,
             "scan_time": frappe.utils.now_datetime(),
+            "scan_date": frappe.utils.today(),
             "latitude": rounded_lat,
             "longitude": rounded_long
         })
@@ -201,3 +213,103 @@ def insert_nfc_card_scan(card_id, latitude=None, longitude=None):
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), "NFC Card Scan Insert Error")
         return {"message": "ok"}
+
+
+
+
+def insert_nfc_card_demo_data():
+    import frappe
+    import random
+    from datetime import datetime, timedelta
+
+    NUM_EMPLOYEES = 20
+    NUM_SCANS = 100
+    NUM_LEADS = 50
+
+    # Saudi Arabia bounding box
+    MIN_LAT, MAX_LAT = 16.0, 32.0
+    MIN_LNG, MAX_LNG = 34.0, 56.0
+
+    saudi_cities = [
+        "Riyadh", "Jeddah", "Mecca", "Medina", "Dammam", "Khobar", "Abha",
+        "Tabuk", "Hail", "Buraydah", "Najran", "Jazan", "Al Bahah",
+        "Sakaka", "Arar", "Al Kharj", "Al Qassim", "Yanbu", "Taif", "Al Majma'ah"
+    ]
+
+    # --- Create 20 NFC Card (employee) records ---
+    employee_names = []
+    for i in range(1, NUM_EMPLOYEES + 1):
+        emp_id = f"HR-EMP-{i:05d}"
+        card_id = frappe.generate_hash(length=20)
+        emp_doc = frappe.get_doc({
+            "doctype": "NFC Card",
+            "name": emp_id,
+            "employee": emp_id,
+            "name_on_card": f"Test User {i}",
+            "card_id": card_id,
+            "company": "NFC (Demo)",
+            "email": f"user{i}@demo.com",
+            "phone": f"05{random.randint(10000000,99999999)}"
+        })
+        try:
+            emp_doc.insert(ignore_permissions=True)
+            frappe.db.commit()
+            print(f"Inserted NFC Card: {emp_id}")
+        except frappe.DuplicateEntryError:
+            print(f"NFC Card {emp_id} already exists.")
+        employee_names.append((emp_id, card_id))
+
+    # --- Create 100 NFC Card Scan records ---
+    for i in range(NUM_SCANS):
+        emp, card = random.choice(employee_names)
+        lat = round(random.uniform(MIN_LAT, MAX_LAT), 6)
+        lng = round(random.uniform(MIN_LNG, MAX_LNG), 6)
+        scan_time = datetime.now() - timedelta(days=random.randint(0, 10), hours=random.randint(0, 23), minutes=random.randint(0, 59))
+        scan_date = scan_time.date().isoformat()
+        doc = frappe.get_doc({
+            "doctype": "NFC Card Scan",
+            "nfc_card": emp,
+            "employee": emp,
+            "card_id": card,
+            "latitude": lat,
+            "longitude": lng,
+            "scan_date": scan_date,
+            "scan_time": scan_time.strftime("%Y-%m-%d %H:%M:%S"),
+            "owner": "Guest"
+        })
+        doc.insert(ignore_permissions=True)
+        frappe.db.commit()
+        print(f"Inserted Scan {i+1}/{NUM_SCANS}")
+
+    # --- Create 50 NFC Card Lead records ---
+    for i in range(NUM_LEADS):
+        emp, card = random.choice(employee_names)
+        lat = round(random.uniform(MIN_LAT, MAX_LAT), 8)
+        lng = round(random.uniform(MIN_LNG, MAX_LNG), 8)
+        city = random.choice(saudi_cities)
+        customer_name = f"Customer {random.randint(1000,9999)}"
+        customer_phone = f"+9665{random.randint(10000000,99999999)}"
+        customer_email = f"customer{random.randint(1000,9999)}@example.com"
+        customer_company = f"Company {random.randint(1,50)}"
+        creation = datetime.now() - timedelta(days=random.randint(0, 10), hours=random.randint(0, 23), minutes=random.randint(0, 59))
+        doc = frappe.get_doc({
+            "doctype": "NFC Card Lead",
+            "nfc_card": emp,
+            "employee": emp,
+            "card_id": card,
+            "latitude": lat,
+            "longitude": lng,
+            "city": city,
+            "customer_name": customer_name,
+            "customer_phone": customer_phone,
+            "customer_email": customer_email,
+            "customer_company": customer_company,
+            "creation": creation.strftime("%Y-%m-%d %H:%M:%S"),
+            "owner": "Guest"
+        })
+        doc.insert(ignore_permissions=True)
+        frappe.db.commit()
+        print(f"Inserted Lead {i+1}/{NUM_LEADS}")
+
+    print("All demo data inserted successfully.")
+

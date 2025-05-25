@@ -22,14 +22,13 @@
  "fields": [
   {
    "fieldname": "employee",
-   "fieldtype": "Link",
+   "fieldtype": "Data",
    "in_filter": 1,
    "in_global_search": 1,
    "in_list_view": 1,
    "in_preview": 1,
    "in_standard_filter": 1,
    "label": "Employee",
-   "options": "Employee",
    "read_only": 1,
    "unique": 1
   },
@@ -130,7 +129,7 @@
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-05-14 23:04:58.847468",
+ "modified": "2025-05-25 21:00:16.314882",
  "modified_by": "Administrator",
  "module": "Nfc Card Integration",
  "name": "NFC Card",
