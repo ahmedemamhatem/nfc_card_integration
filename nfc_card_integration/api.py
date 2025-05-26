@@ -211,8 +211,28 @@ def insert_nfc_card_scan(card_id, latitude=None, longitude=None):
         return {"message": "ok"}
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def insert_nfc_card_demo_data():
+    # Enqueue the actual function
+    frappe.enqueue(
+        "nfc_card_integration.api._insert_nfc_card_demo_data",
+        queue='default',
+        timeout=2400,  # 40 minutes
+        now=False
+    )
+    return {"enqueued": True}
+
+@frappe.whitelist()
+def delete_nfc_card_demo_data():
+    frappe.enqueue(
+        "nfc_card_integration.api._delete_nfc_card_demo_data",
+        queue='default',
+        timeout=2400,  # 40 minutes
+        now=False
+    )
+    return {"enqueued": True}
+
+def _insert_nfc_card_demo_data():
     NUM_EMPLOYEES = 40
     NUM_SCANS = 166
     NUM_LEADS = 78
@@ -334,8 +354,7 @@ def insert_nfc_card_demo_data():
         print(f"Inserted Lead {i+1}/{NUM_LEADS}")
         
 
-@frappe.whitelist()
-def delete_nfc_card_demo_data():
+def _delete_nfc_card_demo_data():
     for doctype in ["NFC Card", "NFC Card Scan", "NFC Card Lead"]:
         frappe.db.sql(f"DELETE FROM `tab{doctype}` WHERE demo=1")
     frappe.db.commit()
