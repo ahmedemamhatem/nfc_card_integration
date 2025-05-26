@@ -1,0 +1,18 @@
+{
+ "content": null,
+ "creation": "2025-05-26 09:48:15.430870",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2025-05-26 09:48:15.430870",
+ "modified_by": "Administrator",
+ "module": "Nfc Card Integration",
+ "name": "nfc_card_scan_dashbo",
+ "owner": "Administrator",
+ "page_name": "nfc_card_scan_dashbo",
+ "roles": [],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0
+}

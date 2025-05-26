@@ -10,9 +10,9 @@
   "customer_phone",
   "sent_email",
   "longitude",
-  "county",
-  "hamlet",
-  "municipality",
+  "country",
+  "address_line",
+  "scan_date",
   "column_break_cnzb",
   "nfc_card",
   "customer_email",
@@ -20,9 +20,10 @@
   "latitude",
   "city",
   "state",
-  "village",
-  "town",
+  "postal_code",
+  "road",
   "section_break_mjjq",
+  "address",
   "lead_map_html"
  ],
  "fields": [
@@ -133,40 +134,46 @@
    "read_only": 1
   },
   {
-   "fieldname": "county",
+   "fieldname": "address",
    "fieldtype": "Data",
-   "label": "county",
+   "label": "Address",
    "read_only": 1
   },
   {
-   "fieldname": "hamlet",
+   "fieldname": "country",
    "fieldtype": "Data",
-   "label": "hamlet",
+   "label": "country ",
    "read_only": 1
   },
   {
-   "fieldname": "municipality",
+   "fieldname": "postal_code",
    "fieldtype": "Data",
-   "label": "municipality",
+   "label": "postal_code",
    "read_only": 1
   },
   {
-   "fieldname": "village",
+   "fieldname": "road",
    "fieldtype": "Data",
-   "label": "village",
+   "label": "road",
    "read_only": 1
   },
   {
-   "fieldname": "town",
-   "fieldtype": "Data",
-   "label": "town",
+   "fieldname": "address_line",
+   "fieldtype": "Small Text",
+   "label": "address_line",
    "read_only": 1
+  },
+  {
+   "fieldname": "scan_date",
+   "fieldtype": "Date",
+   "label": "Scan Date",
+   "no_copy": 1
   }
  ],
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-05-25 23:39:59.692442",
+ "modified": "2025-05-26 11:18:09.082382",
  "modified_by": "Administrator",
  "module": "Nfc Card Integration",
  "name": "NFC Card Lead",
@@ -185,6 +192,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

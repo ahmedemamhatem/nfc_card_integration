@@ -1,14 +1,9 @@
 import frappe
 import json
 import base64
-from datetime import timedelta
-
-
-import frappe
-import json
 from frappe import _
-
-
+import random
+from datetime import datetime, timedelta
 
 @frappe.whitelist()
 def create_nfc_card_from_employee(employee):
@@ -87,6 +82,7 @@ def create_nfc_card_lead_and_email(
     lead = frappe.get_doc({
         "doctype": "NFC Card Lead",
         "employee": employee,
+        "scan_date": frappe.utils.today(),
         "nfc_card": nfc_card,
         "customer_name": customer_name,
         "customer_email": customer_email,
@@ -218,52 +214,78 @@ def insert_nfc_card_scan(card_id, latitude=None, longitude=None):
 
 
 def insert_nfc_card_demo_data():
-    import frappe
-    import random
-    from datetime import datetime, timedelta
-
     NUM_EMPLOYEES = 20
     NUM_SCANS = 100
     NUM_LEADS = 50
 
-    # Saudi Arabia bounding box
-    MIN_LAT, MAX_LAT = 16.0, 32.0
-    MIN_LNG, MAX_LNG = 34.0, 56.0
-
-    saudi_cities = [
-        "Riyadh", "Jeddah", "Mecca", "Medina", "Dammam", "Khobar", "Abha",
-        "Tabuk", "Hail", "Buraydah", "Najran", "Jazan", "Al Bahah",
-        "Sakaka", "Arar", "Al Kharj", "Al Qassim", "Yanbu", "Taif", "Al Majma'ah"
+    # Sample Saudi first and last names
+    saudi_first_names = [
+        "Abdullah", "Mohammed", "Fahad", "Saad", "Turki", "Nasser", "Ali", "Ahmed", "Sultan", "Mansour",
+        "Khalid", "Salman", "Faisal", "Omar", "Yousef", "Majed", "Ibrahim", "Hassan", "Abdulaziz", "Saeed"
     ]
+    saudi_last_names = [
+        "Al Saud", "Al Rashid", "Al Harbi", "Al Otaibi", "Al Mutairi", "Al Qahtani", "Al Shamrani", "Al Ghamdi",
+        "Al Zahrani", "Al Dossari", "Al Subaie", "Al Shehri", "Al Shammari", "Al Anazi", "Al Amri", "Al Juhani",
+        "Al Hazmi", "Al Suwailem", "Al Tami"
+    ]
+
+    def random_saudi_location():
+        # Main Saudi cities and their (lat, lng)
+        cities = [
+            ("Riyadh",   24.7136, 46.6753),
+            ("Jeddah",   21.4858, 39.1925),
+            ("Dammam",   26.4207, 50.0888),
+            ("Mecca",    21.3891, 39.8579),
+            ("Medina",   24.5247, 39.5692),
+            ("Tabuk",    28.3838, 36.5550),
+            ("Abha",     18.2465, 42.5117),
+            ("Buraidah", 26.3566, 43.9442),
+            ("Hail",     27.5114, 41.7208),
+            ("Al Khobar",26.2172, 50.1971),
+        ]
+        city = random.choice(cities)
+        # Offset up to ~0.1 degree (~11km) to make locations spread around the city
+        lat_offset = random.uniform(-0.09, 0.09)
+        lng_offset = random.uniform(-0.09, 0.09)
+        lat = round(city[1] + lat_offset, 6)
+        lng = round(city[2] + lng_offset, 6)
+        return lat, lng
 
     # --- Create 20 NFC Card (employee) records ---
     employee_names = []
+    used_names = set()
     for i in range(1, NUM_EMPLOYEES + 1):
+        while True:
+            first_name = random.choice(saudi_first_names)
+            last_name = random.choice(saudi_last_names)
+            full_name = f"{first_name} {last_name}"
+            if full_name not in used_names:
+                used_names.add(full_name)
+                break
         emp_id = f"HR-EMP-{i:05d}"
         card_id = frappe.generate_hash(length=20)
         emp_doc = frappe.get_doc({
             "doctype": "NFC Card",
             "name": emp_id,
             "employee": emp_id,
-            "name_on_card": f"Test User {i}",
+            "name_on_card": full_name,
             "card_id": card_id,
             "company": "NFC (Demo)",
-            "email": f"user{i}@demo.com",
+            "email": f"{first_name.lower()}.{last_name.lower().replace(' ', '')}{i}@demo.com",
             "phone": f"05{random.randint(10000000,99999999)}"
         })
         try:
             emp_doc.insert(ignore_permissions=True)
             frappe.db.commit()
-            print(f"Inserted NFC Card: {emp_id}")
+            print(f"Inserted NFC Card: {emp_id} ({full_name})")
         except frappe.DuplicateEntryError:
             print(f"NFC Card {emp_id} already exists.")
-        employee_names.append((emp_id, card_id))
+        employee_names.append((emp_id, card_id, full_name))
 
     # --- Create 100 NFC Card Scan records ---
     for i in range(NUM_SCANS):
-        emp, card = random.choice(employee_names)
-        lat = round(random.uniform(MIN_LAT, MAX_LAT), 6)
-        lng = round(random.uniform(MIN_LNG, MAX_LNG), 6)
+        emp, card, full_name = random.choice(employee_names)
+        lat, lng = random_saudi_location()
         scan_time = datetime.now() - timedelta(days=random.randint(0, 10), hours=random.randint(0, 23), minutes=random.randint(0, 59))
         scan_date = scan_time.date().isoformat()
         doc = frappe.get_doc({
@@ -279,14 +301,11 @@ def insert_nfc_card_demo_data():
         })
         doc.insert(ignore_permissions=True)
         frappe.db.commit()
-        print(f"Inserted Scan {i+1}/{NUM_SCANS}")
 
     # --- Create 50 NFC Card Lead records ---
     for i in range(NUM_LEADS):
-        emp, card = random.choice(employee_names)
-        lat = round(random.uniform(MIN_LAT, MAX_LAT), 8)
-        lng = round(random.uniform(MIN_LNG, MAX_LNG), 8)
-        city = random.choice(saudi_cities)
+        emp, card, full_name = random.choice(employee_names)
+        lat, lng = random_saudi_location()
         customer_name = f"Customer {random.randint(1000,9999)}"
         customer_phone = f"+9665{random.randint(10000000,99999999)}"
         customer_email = f"customer{random.randint(1000,9999)}@example.com"
@@ -299,7 +318,6 @@ def insert_nfc_card_demo_data():
             "card_id": card,
             "latitude": lat,
             "longitude": lng,
-            "city": city,
             "customer_name": customer_name,
             "customer_phone": customer_phone,
             "customer_email": customer_email,
@@ -310,6 +328,3 @@ def insert_nfc_card_demo_data():
         doc.insert(ignore_permissions=True)
         frappe.db.commit()
         print(f"Inserted Lead {i+1}/{NUM_LEADS}")
-
-    print("All demo data inserted successfully.")
-

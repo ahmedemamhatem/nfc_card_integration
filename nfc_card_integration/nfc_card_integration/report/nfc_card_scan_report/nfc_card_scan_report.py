@@ -19,9 +19,10 @@ def get_columns():
         {"fieldname": "employee", "label": "Employee Name", "fieldtype": "Data", "width": 150},
         {"fieldname": "card_id", "label": "Card ID", "fieldtype": "Data", "width": 140},
         {"fieldname": "scan_time", "label": "Scan Time", "fieldtype": "Datetime", "width": 160},
-        {"fieldname": "latitude", "label": "Latitude", "fieldtype": "Float", "width": 110},
-        {"fieldname": "longitude", "label": "Longitude", "fieldtype": "Float", "width": 110},
-
+        {"fieldname": "address_line", "label": "Address Line", "fieldtype": "Data", "width": 250},
+        {"fieldname": "city", "label": "City", "fieldtype": "Data", "width": 130},
+        {"fieldname": "state", "label": "State", "fieldtype": "Data", "width": 130},
+        {"fieldname": "postal_code", "label": "postal_code", "fieldtype": "Data", "width": 130},
     ]
 
 def get_data(filters):
@@ -29,101 +30,90 @@ def get_data(filters):
     values = {}
 
     if filters.get("nfc_card"):
-        conditions.append("nfc_card = %(nfc_card)s")
-        values["nfc_card"] = filters.get("nfc_card")
+        conditions.append("nfc_card LIKE %(nfc_card)s")
+        values["nfc_card"] = f"%{filters['nfc_card']}%"
 
     if filters.get("card_id"):
-        conditions.append("card_id = %(card_id)s")
-        values["card_id"] = filters.get("card_id")
+        conditions.append("card_id LIKE %(card_id)s")
+        values["card_id"] = f"%{filters['card_id']}%"
 
     if filters.get("employee"):
-        # Match both the field and linked employee
-        conditions.append("(employee = %(employee)s OR employee = %(employee)s)")
-        values["employee"] = filters.get("employee")
+        conditions.append("(employee LIKE %(employee)s OR employee LIKE %(employee)s)")
+        values["employee"] = f"%{filters['employee']}%"
 
     if filters.get("from_date"):
         conditions.append("scan_time >= %(from_date)s")
-        values["from_date"] = filters.get("from_date")
+        values["from_date"] = filters["from_date"]
 
     if filters.get("to_date"):
         conditions.append("scan_time <= %(to_date)s")
-        values["to_date"] = filters.get("to_date")
+        values["to_date"] = filters["to_date"]
 
-    where = " AND ".join(conditions)
-    if where:
-        where = "WHERE " + where
+    where_clause = "WHERE " + " AND ".join(conditions) if conditions else ""
 
-    # Assumes your doctype has employee as either a link or data field
-    data = frappe.db.sql(f"""
+    return frappe.db.sql(f"""
         SELECT
             name, nfc_card,
             COALESCE(employee, employee) AS employee,
-            card_id, scan_time, latitude, longitude, owner, creation
+            card_id, scan_time,
+            address_line, city, state, postal_code,
+            latitude, longitude, owner, creation
         FROM `tabNFC Card Scan`
-        {where}
+        {where_clause}
         ORDER BY scan_time DESC
-        """, values, as_dict=True)
-    return data
+    """, values, as_dict=True)
 
 def get_dashboard_chart(data):
-    # Count scans per employee
-    emp_counts = {}
-    for d in data:
-        emp = d.get('employee') or d.get('nfc_card') or "-"
-        emp_counts[emp] = emp_counts.get(emp, 0) + 1
+    counts = {}
+    for row in data:
+        key = row.get("employee") or row.get("nfc_card") or "-"
+        counts[key] = counts.get(key, 0) + 1
 
-    chart = {
+    return {
         "data": {
-            "labels": list(emp_counts.keys()),
-            "datasets": [
-                {"nfc_card": "Scan Count", "values": list(emp_counts.values())}
-            ]
+            "labels": list(counts.keys()),
+            "datasets": [{"name": "Scan Count", "values": list(counts.values())}]
         },
         "type": "bar",
         "colors": ["#5e64ff"],
-        "barOptions": {
-            "stacked": False
-        }
+        "barOptions": {"stacked": False}
     }
-    return chart
 
 def get_report_summary(data):
-    total_scans = len(data)
-    unique_employees = len(set([d['employee'] for d in data if d.get('employee')]))
-    unique_cards = len(set([d['card_id'] for d in data if d.get('card_id')]))
     return [
-        {"label": "Total Scans", "value": total_scans, "indicator": "Blue"},
-        {"label": "Unique Employees", "value": unique_employees, "indicator": "Green"},
-        {"label": "Unique Cards Scanned", "value": unique_cards, "indicator": "Orange"},
+        {"label": "Total Scans", "value": len(data), "indicator": "Blue"},
+        {"label": "Unique Employees", "value": len(set(d["employee"] for d in data if d.get("employee"))), "indicator": "Green"},
+        {"label": "Unique Cards Scanned", "value": len(set(d["card_id"] for d in data if d.get("card_id"))), "indicator": "Orange"},
     ]
 
 def get_map_html(data):
-    # Prepare scan points
     points = []
     for d in data:
-        if d.get('latitude') and d.get('longitude'):
+        if d.get("latitude") and d.get("longitude"):
+            label = (
+                f"{d.get('employee') or d.get('nfc_card') or ''}"
+                f"<br><b>Card:</b> {d.get('card_id') or ''}"
+                f"<br><b>Time:</b> {d.get('scan_time') or ''}"
+                f"<br><b>Address:</b> {d.get('address_line') or ''}"
+            )
             points.append({
-                "lat": float(d['latitude']),
-                "lng": float(d['longitude']),
-                "label": (
-                    (d.get('employee') or d.get('nfc_card') or '') +
-                    "<br><b>Card:</b> " + (d.get('card_id') or '') +
-                    "<br><b>Time:</b> " + (str(d.get('scan_time')) or '')
-                )
+                "lat": float(d["latitude"]),
+                "lng": float(d["longitude"]),
+                "label": label
             })
+
     if not points:
         return "<div>No scan locations to map.</div>"
 
-    map_points_json = json.dumps(points)
-    # Dashboard HTML with in-place cluster map
+    map_json = json.dumps(points)
     return f"""
     <div id="nfc_scan_map" style="height:400px;width:100%;"></div>
     <script>
     (function() {{
-        var points = {map_points_json};
+        var points = {map_json};
         function showMap() {{
             function drawMap() {{
-                if (window.nfcScanMapInstance) {{ window.nfcScanMapInstance.remove(); }}
+                if (window.nfcScanMapInstance) window.nfcScanMapInstance.remove();
                 var center = points.length ? [points[0].lat, points[0].lng] : [24.7, 46.7];
                 var map = L.map('nfc_scan_map').setView(center, 11);
                 window.nfcScanMapInstance = map;
@@ -131,45 +121,35 @@ def get_map_html(data):
                     maxZoom: 19,
                     attribution: '© OpenStreetMap'
                 }}).addTo(map);
-                // Always cluster if >1 point
-                if (points.length > 1 && window.L && window.L.markerClusterGroup) {{
-                    var markers = L.markerClusterGroup();
-                    points.forEach(function(pt) {{
-                        var marker = L.marker([pt.lat, pt.lng]).bindPopup(pt.label);
+                var markers = (points.length > 1 && L.markerClusterGroup) ? L.markerClusterGroup() : null;
+                points.forEach(function(pt) {{
+                    var marker = L.marker([pt.lat, pt.lng]).bindPopup(pt.label);
+                    if (markers) {{
                         markers.addLayer(marker);
-                    }});
+                    }} else {{
+                        marker.addTo(map);
+                    }}
+                }});
+                if (markers) {{
                     map.addLayer(markers);
                     var bounds = markers.getBounds();
                     if (bounds.isValid()) map.fitBounds(bounds, {{padding: [30, 30]}});
-                }} else {{
-                    var bounds = [];
-                    points.forEach(function(pt) {{
-                        var marker = L.marker([pt.lat, pt.lng]).addTo(map).bindPopup(pt.label);
-                        bounds.push([pt.lat, pt.lng]);
-                    }});
-                    if (bounds.length > 1) map.fitBounds(bounds, {{padding: [30, 30]}});
                 }}
             }}
-            // Load Leaflet & cluster plugin if not loaded
             function load_once(type, url, cb) {{
-                let tag, already = false;
                 if (type === 'css') {{
-                    already = !!document.querySelector(`link[href="${{url}}"]`);
-                    if (!already) {{
-                        tag = document.createElement('link');
-                        tag.rel = "stylesheet";
-                        tag.href = url;
-                        document.head.appendChild(tag);
+                    if (!document.querySelector(`link[href="${{url}}"]`)) {{
+                        var link = document.createElement('link');
+                        link.rel = "stylesheet"; link.href = url;
+                        document.head.appendChild(link);
                     }}
-                    if (cb) cb();
+                    cb && cb();
                 }} else {{
-                    already = !!document.querySelector(`script[src="${{url}}"]`);
-                    if (!already) {{
-                        tag = document.createElement('script');
-                        tag.src = url;
-                        tag.onload = cb;
-                        document.body.appendChild(tag);
-                    }} else if (cb) cb();
+                    if (!document.querySelector(`script[src="${{url}}"]`)) {{
+                        var script = document.createElement('script');
+                        script.src = url; script.onload = cb;
+                        document.body.appendChild(script);
+                    }} else cb && cb();
                 }}
             }}
             load_once('css', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
