@@ -270,37 +270,35 @@ frappe.pages['nfc_card_scan_dashbo'].on_page_load = async function(wrapper) {
         setMetric('#lead-cities', unique(leadData.map(d=>d.city)).length);
 		
         // Maps
-        function drawMap(mapId, records, pinColor) {
-            setTimeout(() => {
-                const mapDiv = document.getElementById(mapId);
-                if (!mapDiv) return;
-                if (mapInstances[mapId]) { mapInstances[mapId].remove(); mapInstances[mapId]=null;}
-                let map = L.map(mapDiv).setView([24.7136, 46.6753], 6);
-                mapInstances[mapId] = map;
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; OpenStreetMap contributors'
-                }).addTo(map);
-                let cluster = L.markerClusterGroup(), bounds = [];
-                records.forEach(rec => {
-                    if (rec.latitude && rec.longitude) {
-                        let marker = L.marker([rec.latitude, rec.longitude], {
-                            icon: L.divIcon({
-                                className: "custom-leaflet-marker",
-                                html: `<div style="background:linear-gradient(135deg,${pinColor} 30%,#fff 100%);border-radius:50%;width:18px;height:18px;box-shadow:0 0 0 2px #fff, 0 2px 6px #007cf022;"></div>`,
-                                iconSize: [18,18], iconAnchor: [9,9]
-                            })
-                        }).bindPopup(
+    function drawMap(mapId, records, pinColor) {
+        setTimeout(() => {
+            const mapDiv = document.getElementById(mapId);
+            if (!mapDiv) return;
+            if (mapInstances[mapId]) { mapInstances[mapId].remove(); mapInstances[mapId]=null;}
+            let map = L.map(mapDiv).setView([24.7136, 46.6753], 6);
+            mapInstances[mapId] = map;
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+            let cluster = L.markerClusterGroup(), bounds = [];
+            records.forEach(rec => {
+                if (rec.latitude && rec.longitude) {
+                    // Use the default Leaflet marker
+                    let marker = L.marker([rec.latitude, rec.longitude])
+                        .bindPopup(
                             `<b>Employee:</b> ${rec.employee || '-'}<br>
                             <b>City:</b> ${rec.city || '-'}<br>
                             <b>Date:</b> ${rec.scan_date || '-'}<br>
                             <b>Address:</b> ${rec.address || ''}`
                         );
-                        cluster.addLayer(marker); bounds.push([rec.latitude, rec.longitude]);
-                    }
-                }); map.addLayer(cluster);
-                if (bounds.length) map.fitBounds(bounds, {padding: [35,35]});
-            }, 70);
-        }
+                    cluster.addLayer(marker);
+                    bounds.push([rec.latitude, rec.longitude]);
+                }
+            });
+            map.addLayer(cluster);
+            if (bounds.length) map.fitBounds(bounds, {padding: [35,35]});
+        }, 70);
+    }
         drawMap('nfc-scan-map', scanData, '#50a3ff');
         drawMap('nfc-lead-map', leadData, '#ee0979');
 
