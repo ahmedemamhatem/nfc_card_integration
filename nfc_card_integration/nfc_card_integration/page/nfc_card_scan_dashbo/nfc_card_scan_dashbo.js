@@ -124,6 +124,7 @@ frappe.pages['nfc_card_scan_dashbo'].on_page_load = async function(wrapper) {
           </div>
         </div>
       </div>
+      
     `);
 
     // (JS logic is as in my previous answer: analytics, filter, metrics, charts, maps, and fullscreen only for maps)
@@ -246,17 +247,44 @@ frappe.pages['nfc_card_scan_dashbo'].on_page_load = async function(wrapper) {
     }
     async function fetchDataForBoth(filters, callback) {
         let scan_filters = [];
-        if (filters.from_date) scan_filters.push(['scan_date', '>=', filters.from_date]);
-        if (filters.to_date) scan_filters.push(['scan_date', '<=', filters.to_date]);
-        if (filters.employee) scan_filters.push(['employee', '=', filters.employee]);
+        let lead_filters = [];
+
+        // Apply filters to both
+        if (filters.from_date) {
+            scan_filters.push(['scan_date', '>=', filters.from_date]);
+            lead_filters.push(['scan_date', '>=', filters.from_date]);
+        }
+        if (filters.to_date) {
+            scan_filters.push(['scan_date', '<=', filters.to_date]);
+            lead_filters.push(['scan_date', '<=', filters.to_date]);
+        }
+        if (filters.employee) {
+            scan_filters.push(['employee', '=', filters.employee]);
+            lead_filters.push(['employee', '=', filters.employee]);
+        }
+
         frappe.call({
             method: "frappe.client.get_list",
-            args: { doctype: "NFC Card Scan", fields: ["*"], filters: scan_filters, order_by: "scan_date asc, scan_time asc", limit_page_length: 1000 },
+            args: {
+                doctype: "NFC Card Scan",
+                fields: ["*"],
+                filters: scan_filters,
+                order_by: "scan_date asc, scan_date asc",
+                limit_page_length: 1000
+            },
             callback: function(scanRes) {
                 frappe.call({
                     method: "frappe.client.get_list",
-                    args: { doctype: "NFC Card Lead", fields: ["*"], limit_page_length: 1000 },
-                    callback: function(leadRes) { callback(scanRes.message || [], leadRes.message || []); }
+                    args: {
+                        doctype: "NFC Card Lead",
+                        fields: ["*"],
+                        filters: lead_filters,
+                        order_by: "scan_date asc, scan_date asc",
+                        limit_page_length: 1000
+                    },
+                    callback: function(leadRes) {
+                        callback(scanRes.message || [], leadRes.message || []);
+                    }
                 });
             }
         });
