@@ -23,6 +23,41 @@ A secure and modern **digital business card system** built on Frappe/ERPNext. Th
 
 ---
 
+## 📊 Dashboard & Analytics
+
+The dashboard lets you track card scans and leads with rich, interactive visualizations.
+
+**Key Metrics:**
+- Total Card Scans (All Time)
+- Employees Scanned
+- Cities with Card Scans
+- Total NFC Card Leads
+- Employees Generated Leads
+- Cities with NFC Card Leads
+
+**Charts:**
+- **Scans Per Day** & **Leads Per Day** (time-series line charts)
+- **Top 5 Cities by Card Scans / Leads** (bar charts)
+- **Top 5 Employees by Scans / Leads** (bar charts)
+- **Monthly Scans & Leads Volume** (bar charts)
+- **City-wise Scan/Lead Distribution** (doughnut charts; all cities shown, legend scrolls below)
+- **Employee-wise Scan/Lead Distribution** (doughnut charts)
+
+**Maps:**
+- **Scan Locations Map**  
+- **Lead Locations Map**  
+  (Both maps: interactive, cluster markers, and support fullscreen—charts do not.)
+
+**Filtering:**  
+Filter all data by date range and employee. All charts, metrics, and maps update live.
+
+**Legend Handling:**  
+If there are many cities/employees, legends beneath doughnut charts are scrollable and never break the layout.
+
+**Responsive Design:**  
+Dashboard adapts for desktop and mobile screens.
+
+
 ## 🧩 Installation
 
 1. **Get the app:**
