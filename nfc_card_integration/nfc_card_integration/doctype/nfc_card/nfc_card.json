@@ -17,7 +17,8 @@
   "company",
   "email",
   "phone",
-  "company_logo"
+  "company_logo",
+  "demo"
  ],
  "fields": [
   {
@@ -124,12 +125,20 @@
    "fieldtype": "Attach Image",
    "label": "Company Logo",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "demo",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Demo",
+   "read_only": 1
   }
  ],
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-05-25 21:00:16.314882",
+ "modified": "2025-05-26 19:57:11.723732",
  "modified_by": "Administrator",
  "module": "Nfc Card Integration",
  "name": "NFC Card",

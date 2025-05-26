@@ -13,6 +13,7 @@
   "country",
   "address_line",
   "scan_date",
+  "demo",
   "column_break_cnzb",
   "nfc_card",
   "customer_email",
@@ -22,8 +23,14 @@
   "state",
   "postal_code",
   "road",
+  "neighborhood",
+  "suburb",
+  "county",
+  "municipality",
   "section_break_mjjq",
   "address",
+  "display_name",
+  "geocoding_raw_json",
   "lead_map_html"
  ],
  "fields": [
@@ -84,14 +91,12 @@
   {
    "fieldname": "latitude",
    "fieldtype": "Float",
-   "hidden": 1,
    "label": "latitude",
    "read_only": 1
   },
   {
    "fieldname": "longitude",
    "fieldtype": "Float",
-   "hidden": 1,
    "label": "longitude",
    "read_only": 1
   },
@@ -158,6 +163,30 @@
    "read_only": 1
   },
   {
+   "fieldname": "neighborhood",
+   "fieldtype": "Data",
+   "label": "Neighborhood",
+   "read_only": 1
+  },
+  {
+   "fieldname": "suburb",
+   "fieldtype": "Data",
+   "label": "Suburb",
+   "read_only": 1
+  },
+  {
+   "fieldname": "county",
+   "fieldtype": "Data",
+   "label": "County",
+   "read_only": 1
+  },
+  {
+   "fieldname": "municipality",
+   "fieldtype": "Data",
+   "label": "Municipality",
+   "read_only": 1
+  },
+  {
    "fieldname": "address_line",
    "fieldtype": "Small Text",
    "label": "address_line",
@@ -167,13 +196,35 @@
    "fieldname": "scan_date",
    "fieldtype": "Date",
    "label": "Scan Date",
-   "no_copy": 1
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "display_name",
+   "fieldtype": "Small Text",
+   "label": "Display Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "geocoding_raw_json",
+   "fieldtype": "Text",
+   "hidden": 1,
+   "label": "Geocoding Raw JSON",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "demo",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "demo",
+   "read_only": 1
   }
  ],
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-05-26 11:18:09.082382",
+ "modified": "2025-05-26 20:08:25.538239",
  "modified_by": "Administrator",
  "module": "Nfc Card Integration",
  "name": "NFC Card Lead",
@@ -192,7 +243,6 @@
    "write": 1
   }
  ],
- "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []
