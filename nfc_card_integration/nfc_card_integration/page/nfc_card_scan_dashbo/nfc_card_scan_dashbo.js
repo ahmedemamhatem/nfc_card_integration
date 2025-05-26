@@ -485,42 +485,42 @@ frappe.pages['nfc_card_scan_dashbo'].on_page_load = async function(wrapper) {
         let $body = $('#nfc-fs-body').empty();
         let $title = $('#nfc-fs-title').text(getCardTitleById(id));
         $overlay.addClass('active').focus();
-        if ($("#" + id).is('canvas')) {
-            if (fsChart && fsChart.destroy) { fsChart.destroy(); fsChart = null; }
-            let orig = document.getElementById(id);
-            let $canvas = $('<canvas class="nfc-fs-canvas"></canvas>');
-            $body.append($canvas);
-            let origChart = Chart.getChart(orig);
-            if (origChart) {
-                let cfg = JSON.parse(JSON.stringify(origChart.config));
-                if(cfg.options) delete cfg.options.plugins?.legend?.labels?.generateLabels;
-                fsChart = new Chart($canvas[0].getContext('2d'), cfg);
+        $body.append('<div class="nfc-fs-map"></div>');
+        setTimeout(() => {
+            let origMap = mapInstances[id];
+            let center = [24.7136, 46.6753], zoom = 6;
+            if (origMap) {
+                center = origMap.getCenter();
+                zoom = origMap.getZoom();
             }
-        } else if ($("#" + id).hasClass('nfc-mapbox')) {
-            $body.append('<div class="nfc-fs-map"></div>');
-            setTimeout(() => {
-                let origMap = mapInstances[id];
-                let center = [24.7136, 46.6753], zoom = 6;
-                if (origMap) {
-                    center = origMap.getCenter();
-                    zoom = origMap.getZoom();
-                }
-                let fsMap = L.map($body.find('.nfc-fs-map')[0]).setView(center, zoom);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; OpenStreetMap contributors'
-                }).addTo(fsMap);
-                if (origMap && origMap._layers) {
-                    for (let k in origMap._layers) {
-                        let layer = origMap._layers[k];
-                        if (layer instanceof L.MarkerClusterGroup) {
-                            layer.eachLayer(function(marker){
-                                marker.addTo(fsMap);
-                            });
-                        }
+            let fsMap = L.map($body.find('.nfc-fs-map')[0]).setView(center, zoom);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(fsMap);
+
+            // Re-add markers as default markers with popup, in a cluster group
+            if (origMap && origMap._layers) {
+                let allMarkers = [];
+                for (let k in origMap._layers) {
+                    let layer = origMap._layers[k];
+                    if (layer instanceof L.MarkerClusterGroup) {
+                        layer.eachLayer(function(marker){
+                            let latlng = marker.getLatLng();
+                            let popupContent = marker.getPopup() ? marker.getPopup().getContent() : "";
+                            let m = L.marker(latlng).bindPopup(popupContent);
+                            allMarkers.push(m);
+                        });
                     }
                 }
-            }, 60);
-        }
+                let fsCluster = L.markerClusterGroup();
+                allMarkers.forEach(m => fsCluster.addLayer(m));
+                fsMap.addLayer(fsCluster);
+                if (allMarkers.length) {
+                    let group = L.featureGroup(allMarkers);
+                    fsMap.fitBounds(group.getBounds(), {padding: [35,35]});
+                }
+            }
+        }, 60);
     });
     $wrapper.on('click', '#nfc-fs-close-btn', function(e){
         e.preventDefault();
