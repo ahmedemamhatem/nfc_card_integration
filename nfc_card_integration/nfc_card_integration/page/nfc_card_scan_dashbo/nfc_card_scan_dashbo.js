@@ -597,6 +597,7 @@ frappe.pages['nfc_card_scan_dashbo'].on_page_load = async function(wrapper) {
             <div id="nfc-fs-body"></div>
         </div>
         </div>
+        
     </div>
     `);
 
@@ -625,8 +626,10 @@ frappe.pages['nfc_card_scan_dashbo'].on_page_load = async function(wrapper) {
     await loadScript('https://cdn.jsdelivr.net/npm/chart.js');
     await loadScript('https://unpkg.com/leaflet/dist/leaflet.js');
     await loadScript('https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js');
-   
-    
+    await loadScript('https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2');
+    if (typeof Chart !== "undefined" && typeof ChartDataLabels !== "undefined") {
+    Chart.register(ChartDataLabels);
+    }   
 
     
 
@@ -1155,36 +1158,79 @@ frappe.pages['nfc_card_scan_dashbo'].on_page_load = async function(wrapper) {
         const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
         const dayColors = ['#007cf0','#36d1c4','#ffc93c','#ee0979','#ff6b6b','#a2a9b5','#6c63ff'];
 
-        // Fill hour-day matrix
-        const hourDayCounts = Array.from({length: 7}, () => Array(24).fill(0));
+        const hourColors = [
+            '#007cf0', '#36d1c4', '#ffc93c', '#ee0979', '#ff6b6b',
+            '#a2a9b5', '#6c63ff', '#19cd5b', '#ff8c42', '#4ecdc4', '#22223b'
+            ];
+        const hourRange = Array.from({length: 11}, (_, i) => i + 8); // [8, 9, ..., 18]
+
+        // Count scans: dayHourCounts[day][hour]
+        const dayHourCounts = Array.from({length: 7}, () => Array(24).fill(0));
         scanData.forEach(r => {
-        if (r.creation) {
-            let dt = frappe.datetime.str_to_obj(r.creation);
-            hourDayCounts[dt.getDay()][dt.getHours()]++;
-        }
+            if (r.scan_date && r.scan_time) {
+                let dt = frappe.datetime.str_to_obj(`${r.scan_date} ${r.scan_time}`);
+                let day = dt.getDay();     // 0 (Sunday) to 6 (Saturday)
+                let hour = dt.getHours();  // 0-23
+                if (hour >= 8 && hour <= 18) {
+                    dayHourCounts[day][hour]++;
+                }
+            }
         });
 
-        const labels = [...Array(24).keys()].map(h => h + ":00");
-        const datasets = days.map((d, i) => ({
-        label: d,
-        data: hourDayCounts[i],
-        backgroundColor: dayColors[i]
+        // Datasets: one per hour, with datalabels config
+        const datasets = hourRange.map((hour, i) => ({
+            label: hour.toString().padStart(2,'0') + ":00",
+            data: days.map((_, dayIdx) => dayHourCounts[dayIdx][hour]),
+            backgroundColor: hourColors[i % hourColors.length],
+            datalabels: {
+                color: '#fff',
+                anchor: 'center',
+                align: 'center',
+                font: {
+                    weight: 'bold',
+                    size: 10
+                },
+                display: function(context) {
+                    return context.dataset.data[context.dataIndex] > 0;
+                },
+                formatter: function(value, context) {
+                    return context.dataset.label;
+                }
+            }
         }));
 
-        makeChart('scanHeatmapBar', {
-        type: 'bar',
-        data: { labels, datasets },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-            legend: { position: 'top' }
-            },
-            scales: {
-            x: { stacked: true },
-            y: { stacked: true, beginAtZero: true }
-            }
+        const labels = days;
+
+        // Register datalabels plugin if using Chart.js 3+
+        if (typeof Chart !== "undefined" && typeof ChartDataLabels !== "undefined") {
+            Chart.register(ChartDataLabels);
         }
+
+        makeChart('scanHeatmapBar', {
+            type: 'bar',
+            data: { labels, datasets },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top', maxHeight: 400 },
+                    datalabels: {
+                        // These are global defaults; per dataset above will override
+                        anchor: 'center',
+                        align: 'center',
+                        font: {
+                            weight: 'bold',
+                            size: 10
+                        },
+                        color: '#fff'
+                    }
+                },
+                scales: {
+                    x: { stacked: true },
+                    y: { stacked: true, beginAtZero: true }
+                }
+            },
+            plugins: [typeof ChartDataLabels !== "undefined" ? ChartDataLabels : undefined].filter(Boolean)
         });
 
         function unique(arr) { return [...new Set(arr)]; }

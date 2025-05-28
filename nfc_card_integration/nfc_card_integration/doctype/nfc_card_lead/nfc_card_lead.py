@@ -59,5 +59,7 @@ class NFCCardLead(Document):
                 if not self.scan_date:
                     self.scan_date = frappe.utils.today()
 
+                if not self.scan_date:
+                    self.scan_date = frappe.utils.now()
             except Exception:
                 frappe.log_error(frappe.get_traceback(), "NFC Lead Geocoding Failed")

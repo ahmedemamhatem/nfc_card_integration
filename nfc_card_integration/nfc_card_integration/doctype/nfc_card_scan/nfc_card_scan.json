@@ -7,7 +7,6 @@
  "field_order": [
   "nfc_card",
   "card_id",
-  "scan_date",
   "longitude",
   "county",
   "state",
@@ -17,6 +16,7 @@
   "municipality",
   "column_break_okox",
   "employee",
+  "scan_date",
   "scan_time",
   "latitude",
   "city",
@@ -43,7 +43,7 @@
   },
   {
    "fieldname": "scan_time",
-   "fieldtype": "Data",
+   "fieldtype": "Time",
    "in_global_search": 1,
    "in_list_view": 1,
    "in_preview": 1,
@@ -199,7 +199,7 @@
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-05-26 20:08:44.066075",
+ "modified": "2025-05-28 21:55:06.742373",
  "modified_by": "Administrator",
  "module": "Nfc Card Integration",
  "name": "NFC Card Scan",

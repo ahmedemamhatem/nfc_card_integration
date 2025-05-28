@@ -13,6 +13,7 @@
   "country",
   "address_line",
   "scan_date",
+  "scan_time",
   "demo",
   "column_break_cnzb",
   "nfc_card",
@@ -219,12 +220,18 @@
    "hidden": 1,
    "label": "demo",
    "read_only": 1
+  },
+  {
+   "fieldname": "scan_time",
+   "fieldtype": "Time",
+   "label": "Scan Time",
+   "read_only": 1
   }
  ],
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-05-26 20:08:25.538239",
+ "modified": "2025-05-28 21:53:45.339985",
  "modified_by": "Administrator",
  "module": "Nfc Card Integration",
  "name": "NFC Card Lead",

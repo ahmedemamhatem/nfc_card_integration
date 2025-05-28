@@ -55,8 +55,12 @@ class NFCCardScan(Document):
                 # Store display_name from Nominatim
                 self.display_name = location.raw.get('display_name') if location and location.raw else location.address if location else ''
 
+                # Ensure scan_date is set
                 if not self.scan_date:
                     self.scan_date = frappe.utils.today()
+
+                if not self.scan_date:
+                    self.scan_date = frappe.utils.now()
                 
             except Exception:
                 frappe.log_error(frappe.get_traceback(), "NFC Scan Geocoding Failed")
