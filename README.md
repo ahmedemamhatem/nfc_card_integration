@@ -104,13 +104,6 @@ Gain insights on card scans and leads with a rich, interactive dashboard.
    bench --site [your-site-name] install-app nfc_card_integration
    ```
 
-2. **Install required Python packages:**
-
-   ```bash
-   pip install cryptography
-   ```
-
----
 
 ## 🛠️ Usage
 
@@ -144,17 +137,31 @@ Each NFC card page provides:
 
 ```
 nfc_card_integration/
-├── www/
-│   └── nfc-card/
-│       ├── [unique_id].py        # Web handler to fetch and render NFC card
-│       └── [unique_id].html      # Jinja template for the card UI
-├── utils/
-│   └── crypto.py                 # Utility functions (not used for encryption)
-├── nfc_card_integration/         # Frappe app core files
-├── README.md
-├── license.txt
-├── pyproject.toml
-└── ...
+├── nfc_card_integration/           # Main app directory
+│   ├── nfc_card_integration/       # Core app files
+│   │   ├── doctype/               # Custom doctypes
+│   │   │   ├── nfc_card/          # Main NFC Card doctype
+│   │   │   ├── nfc_card_scan/     # Scan tracking
+│   │   │   └── nfc_card_lead/     # Lead management
+│   │   ├── api/                   # API endpoints
+│   │   ├── utils/                 # Utility functions
+│   │   ├── public/                # Static assets (CSS, JS, images)
+│   │   └── templates/             # Email and web templates
+│   ├── www/                       # Web pages
+│   │   └── nfc-card/             # Card display pages
+│   │       ├── [unique_id].py     # Web handler for card rendering
+│   │       └── [unique_id].html   # Jinja2 template for card UI
+│   ├── utils/
+│   │   └── crypto.py              # Encryption utilities (Fernet-based)
+│   ├── fixtures/                  # Initial data and configurations
+│   ├── patches/                   # Database migration patches
+│   └── config/                    # App configuration files
+├── README.md                      # This documentation
+├── license.txt                    # MIT License
+├── pyproject.toml                # Python project configuration
+├── package.json                   # Node.js dependencies
+├── requirements.txt               # Python dependencies
+└── hooks.py                       # Frappe framework hooks
 ```
 
 ---
