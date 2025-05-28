@@ -931,7 +931,7 @@ frappe.pages['nfc_card_scan_dashbo'].on_page_load = async function(wrapper) {
                     '#36d1c4', '#ee0979', '#f9d423', '#e17055', '#5f27cd'
                 ] }]
             },
-            options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'right'}, tooltip:{callbacks:{
+            options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'right'},datalabels: { display: false }, tooltip:{callbacks:{
                 label: (ctx) => `${ctx.label}: ${ctx.raw} (${((ctx.raw * 100) / scanData.length).toFixed(1)}%)`
             }}}}
         });
@@ -943,7 +943,7 @@ frappe.pages['nfc_card_scan_dashbo'].on_page_load = async function(wrapper) {
                     '#36d1c4', '#f9d423', '#e17055', '#5f27cd','#50a3ff'
                 ] }]
             },
-            options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'right'}, tooltip:{callbacks:{
+            options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'right'},datalabels: { display: false }, tooltip:{callbacks:{
                 label: (ctx) => `${ctx.label}: ${ctx.raw} (${((ctx.raw * 100) / leadData.length).toFixed(1)}%)`
             }}}}
         });
@@ -961,7 +961,7 @@ frappe.pages['nfc_card_scan_dashbo'].on_page_load = async function(wrapper) {
                 }]
             }, options:{
                 responsive:true, maintainAspectRatio:false,
-                plugins:{legend:{position:'right'}, tooltip:{callbacks:{
+                plugins:{legend:{position:'right'},datalabels: { display: false }, tooltip:{callbacks:{
                     label: (ctx) => `${ctx.label}: ${ctx.raw} (${((ctx.raw * 100) / scanData.length).toFixed(1)}%)`
                 }}}
             }
@@ -979,7 +979,7 @@ frappe.pages['nfc_card_scan_dashbo'].on_page_load = async function(wrapper) {
                 }]
             }, options:{
                 responsive:true, maintainAspectRatio:false,
-                plugins:{legend:{position:'right'}, tooltip:{callbacks:{
+                plugins:{legend:{position:'right'},datalabels: { display: false }, tooltip:{callbacks:{
                     label: (ctx) => `${ctx.label}: ${ctx.raw} (${((ctx.raw * 100) / leadData.length).toFixed(1)}%)`
                 }}}
             }
@@ -1253,7 +1253,7 @@ frappe.pages['nfc_card_scan_dashbo'].on_page_load = async function(wrapper) {
         },
         options: {
             responsive:true, maintainAspectRatio:false,
-            plugins:{legend:{display:true,position:'top'}},
+            plugins:{legend:{display:true,position:'top'},datalabels: { display: false }},
             scales: { x: {stacked:true}, y: {stacked:true, beginAtZero:true}}
         }
         });
@@ -1272,7 +1272,7 @@ frappe.pages['nfc_card_scan_dashbo'].on_page_load = async function(wrapper) {
         },
         options: {
             responsive:true, maintainAspectRatio:false,
-            plugins:{legend:{position:'top'}},
+            plugins:{legend:{position:'top'},datalabels: { display: false }},
             scales: { x: { stacked:false }, y: { beginAtZero:true } }
         }
         });
