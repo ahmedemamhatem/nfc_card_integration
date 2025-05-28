@@ -100,7 +100,7 @@ Gain insights on card scans and leads with a rich, interactive dashboard.
 
    ```bash
    cd /path/to/frappe-bench
-   bench get-app https://github.com/ahmedemamhatem/nfc_card_integration.git --branch develop
+   bench get-app https://github.com/ahmedemamhatem/nfc_card_integration.git 
    bench --site [your-site-name] install-app nfc_card_integration
    ```
 
