@@ -22,12 +22,8 @@ frappe.ui.form.on("Employee", {
                 });
             });
         }
-    }
-});
+    },
 
-
-
-frappe.ui.form.on("Employee", {
     after_save: function(frm) {
         frappe.call({
             method: "nfc_card_integration.api.create_nfc_card_from_employee",

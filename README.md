@@ -6,7 +6,7 @@ A secure and modern **digital business card system** built on Frappe/ERPNext. Th
 
 ## 🚀 Features
 
-- 🔗 **Unique Encrypted URLs**  
+- 🔗 **Unique Card URLs**  
   Share your card without exposing internal IDs or sensitive data.
 
 - 👤 **Business Card Webpage**  
@@ -25,38 +25,74 @@ A secure and modern **digital business card system** built on Frappe/ERPNext. Th
 
 ## 📊 Dashboard & Analytics
 
-The dashboard lets you track card scans and leads with rich, interactive visualizations.
+Gain insights on card scans and leads with a rich, interactive dashboard.
 
 **Key Metrics:**
-- Total Card Scans (All Time)
-- Employees Scanned
-- Cities with Card Scans
-- Total NFC Card Leads
-- Employees Generated Leads
+
+- Total Card Scans (All Time)  
+- Employees Scanned  
+- Cities with Card Scans  
+- Total NFC Card Leads  
+- Employees Generated Leads  
 - Cities with NFC Card Leads
 
 **Charts:**
-- **Scans Per Day** & **Leads Per Day** (time-series line charts)
-- **Top 5 Cities by Card Scans / Leads** (bar charts)
-- **Top 5 Employees by Scans / Leads** (bar charts)
-- **Monthly Scans & Leads Volume** (bar charts)
-- **City-wise Scan/Lead Distribution** (doughnut charts; all cities shown, legend scrolls below)
-- **Employee-wise Scan/Lead Distribution** (doughnut charts)
+
+- **Scans Per Day** & **Leads Per Day**  
+  _Time-series line charts_
+
+- **Top 5 Cities by Card Scans / Leads**  
+  _Horizontal bar charts_
+
+- **Top 5 Employees by Scans / Leads**  
+  _Horizontal bar charts_
+
+- **Monthly Scans & Leads Volume**  
+  _Stacked bar charts by month and employee_
+
+- **City-wise Scan/Lead Distribution**  
+  _Doughnut charts (all cities shown, scrollable legend)_
+
+- **Employee-wise Scan/Lead Distribution**  
+  _Doughnut charts (all employees shown, scrollable legend)_
+
+- **Scans Heatmap (Hour × Day)**  
+  _Stacked bar heatmap showing scan volumes by hour and weekday_
+
+- **Monthly Employee Stacked Chart**  
+  _Stacked bars showing scans by employee across each month_
+
+- **Employee Scan vs Lead Bar Chart**  
+  _Grouped bars showing both scans and leads by employee_
+
+- **Top 5 Employees by Scan→Lead Conversion (%)**  
+  _Bar chart showing conversion rates_
+
+- **Top 5 Cities by Scan→Lead Conversion (%)**  
+  _Bar chart showing conversion rates_
+
+- **Employees/Cities with Scans but No Leads**  
+  _Tabular lists highlighting missed opportunities_
 
 **Maps:**
+
 - **Scan Locations Map**  
 - **Lead Locations Map**  
-  (Both maps: interactive, cluster markers, and support fullscreen—charts do not.)
+  _(Both are interactive, with marker clusters and fullscreen support.)_
 
-**Filtering:**  
-Filter all data by date range and employee. All charts, metrics, and maps update live.
+**Filtering:**
 
-**Legend Handling:**  
-If there are many cities/employees, legends beneath doughnut charts are scrollable and never break the layout.
+- Filter all data by date range and employee. All charts, metrics, and maps update live.
 
-**Responsive Design:**  
-Dashboard adapts for desktop and mobile screens.
+**Legend Handling:**
 
+- Legends beneath doughnut charts are scrollable and always fit the layout, even with many items.
+
+**Responsive Design:**
+
+- Dashboard adapts elegantly for desktop and mobile screens.
+
+---
 
 ## 🧩 Installation
 
@@ -70,39 +106,21 @@ Dashboard adapts for desktop and mobile screens.
 
 2. **Install required Python packages:**
 
-   > 📦 **Install required Python packages:**
-
    ```bash
    pip install cryptography
    ```
-
-3. **Set up Fernet encryption key:**
-
-   Generate a secure key:
-
-   ```python
-   from cryptography.fernet import Fernet
-   print(Fernet.generate_key())
-   ```
-
-   Copy the output and paste it into `nfc_card_integration/utils/crypto.py`:
-
-   ```python
-   FERNET_KEY = b'YOUR_GENERATED_KEY_HERE=='
-   ```
-
-   > 🔐 **Important:** Keep this key secret. You must use the same key to decode encrypted card URLs across sessions.
 
 ---
 
 ## 🛠️ Usage
 
-1. **Create a new NFC Card**  
+1. **Create a new NFC Card**
 
-2. **Generate a unique NFC card URL**:
+2. **Generate a unique NFC card URL:**
 
    ```python
    from nfc_card_integration.utils.crypto import encrypt_card_id
+
    unique_id = encrypt_card_id(card_id)
    url = f"/nfc-card/{unique_id}"
    ```
@@ -131,7 +149,7 @@ nfc_card_integration/
 │       ├── [unique_id].py        # Web handler to fetch and render NFC card
 │       └── [unique_id].html      # Jinja template for the card UI
 ├── utils/
-│   └── crypto.py                 # Fernet utility (encrypt/decrypt card IDs)
+│   └── crypto.py                 # Utility functions (not used for encryption)
 ├── nfc_card_integration/         # Frappe app core files
 ├── README.md
 ├── license.txt

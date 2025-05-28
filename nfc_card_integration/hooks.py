@@ -9,7 +9,7 @@ app_license = "mit"
 # ------------------
 app_include_js = [
     "/assets/nfc_card_integration/js/nfc_card_form.js",
-    "/assets/nfc_card_integration/js/nfc_card_form.js",
+    "/assets/nfc_card_integration/js/employee_custom.js",
     "/assets/nfc_card_integration/js/company.js"
 ]
 
