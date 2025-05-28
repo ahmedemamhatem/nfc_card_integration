@@ -778,45 +778,78 @@ frappe.pages['nfc_card_scan_dashbo'].on_page_load = async function(wrapper) {
 		
         // Maps
     function drawMap(mapId, records, isLeadMap = false) {
-            setTimeout(() => {
-                const mapDiv = document.getElementById(mapId);
-                if (!mapDiv) return;
-                if (mapInstances[mapId]) { mapInstances[mapId].remove(); mapInstances[mapId] = null; }
-                let map = L.map(mapDiv).setView([24.7136, 46.6753], 6);
-                mapInstances[mapId] = map;
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; OpenStreetMap contributors'
-                }).addTo(map);
-                let cluster = L.markerClusterGroup(), bounds = [];
-                records.forEach(rec => {
-                    if (rec.latitude && rec.longitude) {
-                        let popupHtml = isLeadMap
-                            ? `<b>Employee:</b> ${rec.employee || '-'}<br>
-                            <b>Customer:</b> ${rec.customer_name || '-'}<br>
-                            <b>Phone:</b> ${rec.customer_phone || '-'}<br>
-                            <b>City:</b> ${rec.city || '-'}<br>
-                            <b>Date:</b> ${rec.scan_date || '-'}<br>
-                            <b>Address:</b> ${rec.address || ''}`
-                            : `<b>Employee:</b> ${rec.employee || '-'}<br>
-                            <b>City:</b> ${rec.city || '-'}<br>
-                            <b>Date:</b> ${rec.scan_date || '-'}<br>
-                            <b>Address:</b> ${rec.address || ''}`;
-                        let marker = L.marker([rec.latitude, rec.longitude])
-                            .bindPopup(popupHtml);
-                        cluster.addLayer(marker);
-                        bounds.push([rec.latitude, rec.longitude]);
-                    }
-                });
-                map.addLayer(cluster);
-                if (bounds.length) map.fitBounds(bounds, { padding: [35, 35] });
-            }, 70);
-        }
+    setTimeout(() => {
+        const mapDiv = document.getElementById(mapId);
+        if (!mapDiv) return;
+        if (mapInstances[mapId]) { mapInstances[mapId].remove(); mapInstances[mapId] = null; }
+        let map = L.map(mapDiv, { zoomControl: false }).setView([24.7136, 46.6753], 6);
+        mapInstances[mapId] = map;
+
+        // --- 1. Define base layers ---
+        let baseLayers = {
+            "Light": L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap, &copy; CartoDB'
+            }),
+            "Dark": L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap, &copy; CartoDB'
+            }),
+            "Satellite": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri'
+            }),
+            "Toner Lite": L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', {
+                attribution: 'Map tiles by Stamen Design'
+            }),
+            "OSM": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            })
+        };
+
+        // --- 2. Set default base layer ---
+        baseLayers["OSM"].addTo(map);
+
+        // --- 3. Add map controls ---
+        L.control.zoom({ position: 'topright' }).addTo(map);
+        L.control.scale({ position: 'bottomleft' }).addTo(map);
+
+        // --- 4. Add base layer switcher UI ---
+        L.control.layers(baseLayers, null, { position: 'topright' }).addTo(map);
+
+        // --- 5. Add marker cluster and markers as before ---
+        let cluster = L.markerClusterGroup();
+        let bounds = [];
+
+        records.forEach(rec => {
+            if (rec.latitude && rec.longitude) {
+                let popupHtml = isLeadMap
+                    ? `<b>Employee:</b> ${rec.employee || '-'}<br>
+                       <b>Customer:</b> ${rec.customer_name || '-'}<br>
+                       <b>Phone:</b> ${rec.customer_phone || '-'}<br>
+                       <b>City:</b> ${rec.city || '-'}<br>
+                       <b>Date:</b> ${rec.scan_date || '-'}<br>
+                       <b>Address:</b> ${rec.address || '-'}`
+                    : `<b>Employee:</b> ${rec.employee || '-'}<br>
+                       <b>City:</b> ${rec.city || '-'}<br>
+                       <b>Date:</b> ${rec.scan_date || '-'}<br>
+                       <b>Address:</b> ${rec.address || '-'}`;
+                let marker = L.marker([rec.latitude, rec.longitude]).bindPopup(popupHtml);
+                cluster.addLayer(marker);
+                bounds.push([rec.latitude, rec.longitude]);
+            }
+        });
+        map.addLayer(cluster);
+        if (bounds.length) map.fitBounds(bounds, { padding: [35, 35] });
+
+        // --- 6. Responsive resize (optional) ---
+        function resizeMap() { map.invalidateSize(); }
+        window.addEventListener('resize', resizeMap);
+
+    }, 80);
+}
 
         // Usage:
         drawMap('nfc-scan-map', scanData, false);
         drawMap('nfc-lead-map', leadData, true);
-        // drawMap('nfc-scan-map', scanData, '#50a3ff');
-        // drawMap('nfc-lead-map', leadData, '#ee0979');
+
 
         // Charts
         function makeChart(id, config) {
@@ -1246,50 +1279,80 @@ frappe.pages['nfc_card_scan_dashbo'].on_page_load = async function(wrapper) {
         };
         return map[id] || id;
     }
-    $wrapper.on('click', '.nfc-fs-btn', function(e){
-        e.preventDefault();
-        let id = $(this).data('fsid');
-        let $overlay = $('#nfc-fs-overlay');
-        let $body = $('#nfc-fs-body').empty();
-        let $title = $('#nfc-fs-title').text(getCardTitleById(id));
-        $overlay.addClass('active').focus();
-        $body.append('<div class="nfc-fs-map"></div>');
-        setTimeout(() => {
-            let origMap = mapInstances[id];
-            let center = [24.7136, 46.6753], zoom = 6;
-            if (origMap) {
-                center = origMap.getCenter();
-                zoom = origMap.getZoom();
-            }
-            let fsMap = L.map($body.find('.nfc-fs-map')[0]).setView(center, zoom);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenStreetMap contributors'
-            }).addTo(fsMap);
 
-            // Re-add markers as default markers with popup, in a cluster group
-            if (origMap && origMap._layers) {
-                let allMarkers = [];
-                for (let k in origMap._layers) {
-                    let layer = origMap._layers[k];
-                    if (layer instanceof L.MarkerClusterGroup) {
-                        layer.eachLayer(function(marker){
-                            let latlng = marker.getLatLng();
-                            let popupContent = marker.getPopup() ? marker.getPopup().getContent() : "";
-                            let m = L.marker(latlng).bindPopup(popupContent);
-                            allMarkers.push(m);
-                        });
+    $wrapper.on('click', '.nfc-fs-btn', function(e){
+            e.preventDefault();
+            let id = $(this).data('fsid');
+            let $overlay = $('#nfc-fs-overlay');
+            let $body = $('#nfc-fs-body').empty();
+            $('#nfc-fs-title').text(getCardTitleById(id));
+            $overlay.addClass('active').focus();
+            $body.append('<div class="nfc-fs-map"></div>');
+
+            setTimeout(() => {
+                // --- 1. Prepare base layers ---
+                let baseLayers = {
+                    "Light": L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                        attribution: '&copy; OpenStreetMap, &copy; CartoDB'
+                    }),
+                    "Dark": L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                        attribution: '&copy; OpenStreetMap, &copy; CartoDB'
+                    }),
+                    "Satellite": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                        attribution: 'Tiles &copy; Esri'
+                    }),
+                    "Toner Lite": L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', {
+                        attribution: 'Map tiles by Stamen Design'
+                    }),
+                    "OSM": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; OpenStreetMap contributors'
+                    })
+                };
+
+                // --- 2. Create fullscreen map ---
+                let origMap = mapInstances[id];
+                let center = [24.7136, 46.6753], zoom = 6;
+                if (origMap) {
+                    center = origMap.getCenter();
+                    zoom = origMap.getZoom();
+                }
+                let fsMap = L.map($body.find('.nfc-fs-map')[0], { zoomControl: false }).setView(center, zoom);
+                baseLayers["OSM"].addTo(fsMap);
+
+                // --- 3. Add controls ---
+                L.control.zoom({ position: 'topright' }).addTo(fsMap);
+                L.control.scale({ position: 'bottomleft' }).addTo(fsMap);
+                // Add the base layer switcher (this is the important part!)
+                L.control.layers(baseLayers, null, { position: 'topright' }).addTo(fsMap);
+
+                // --- 4. (Optional) Add markers/clusters from your original map ---
+                if (origMap && origMap._layers) {
+                    let allMarkers = [];
+                    for (let k in origMap._layers) {
+                        let layer = origMap._layers[k];
+                        if (layer instanceof L.MarkerClusterGroup) {
+                            layer.eachLayer(function(marker){
+                                let latlng = marker.getLatLng();
+                                let popupContent = marker.getPopup() ? marker.getPopup().getContent() : "";
+                                let m = L.marker(latlng).bindPopup(popupContent);
+                                allMarkers.push(m);
+                            });
+                        }
+                    }
+                    let fsCluster = L.markerClusterGroup();
+                    allMarkers.forEach(m => fsCluster.addLayer(m));
+                    fsMap.addLayer(fsCluster);
+                    if (allMarkers.length) {
+                        let group = L.featureGroup(allMarkers);
+                        fsMap.fitBounds(group.getBounds(), {padding: [35,35]});
                     }
                 }
-                let fsCluster = L.markerClusterGroup();
-                allMarkers.forEach(m => fsCluster.addLayer(m));
-                fsMap.addLayer(fsCluster);
-                if (allMarkers.length) {
-                    let group = L.featureGroup(allMarkers);
-                    fsMap.fitBounds(group.getBounds(), {padding: [35,35]});
-                }
-            }
-        }, 60);
-    });
+
+                // Resize fix for fullscreen
+                setTimeout(() => fsMap.invalidateSize(), 200);
+
+            }, 60);
+        });
     $wrapper.on('click', '#nfc-fs-close-btn', function(e){
         e.preventDefault();
         $('#nfc-fs-overlay').removeClass('active');
