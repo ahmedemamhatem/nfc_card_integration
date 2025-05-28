@@ -233,7 +233,7 @@ def delete_nfc_card_demo_data():
     return {"enqueued": True}
 
 def _insert_nfc_card_demo_data():
-    NUM_EMPLOYEES = 40
+    NUM_EMPLOYEES = 12
     NUM_SCANS = 166
     NUM_LEADS = 78
 
